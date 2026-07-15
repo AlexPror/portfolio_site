@@ -478,7 +478,6 @@ p {
   display: none;
   align-items: center;
   justify-content: center;
-  perspective: 720px;
 }
 
 @media (min-width: 600px) {
@@ -496,98 +495,30 @@ p {
 
 .cube-stage {
   position: relative;
-  width: min(220px, 46vw);
-  height: min(220px, 46vw);
+  width: min(240px, 52vw);
+  height: min(240px, 52vw);
   display: flex;
   align-items: center;
   justify-content: center;
-  transform-style: preserve-3d;
 }
 
-.wire-cube {
-  position: relative;
-  width: 120px;
-  height: 120px;
-  transform-style: preserve-3d;
-  will-change: transform;
+.wire-cube-svg {
+  width: 100%;
+  height: 100%;
+  color: var(--accent);
+  overflow: visible;
 }
 
-.cube-face {
-  position: absolute;
-  inset: 0;
-  border: 1.5px solid var(--accent);
-  opacity: 0.5;
-  background: rgba(74, 168, 255, 0.04);
-  backface-visibility: visible;
+.cube-edges {
+  opacity: 0.9;
 }
 
-.face-front {
-  transform: translateZ(60px);
-}
-
-.face-back {
-  transform: rotateY(180deg) translateZ(60px);
-  opacity: 0.28;
-}
-
-.face-top {
-  transform: rotateX(90deg) translateZ(60px);
-  opacity: 0.35;
-}
-
-.cube-edge {
-  position: absolute;
-  background: var(--accent);
-  opacity: 0.4;
-  transform-style: preserve-3d;
-}
-
-.e1 {
-  width: 1.5px;
-  height: 120px;
-  left: 50%;
-  top: 0;
-  transform: translateX(-50%) translateZ(0);
-}
-
-.e2 {
-  width: 120px;
-  height: 1.5px;
-  top: 50%;
-  left: 0;
-  transform: translateY(-50%) rotateY(90deg) translateZ(0);
-}
-
-.e3 {
-  width: 120px;
-  height: 1.5px;
-  top: 50%;
-  left: 0;
-  transform: translateY(-50%) rotateX(90deg);
-  opacity: 0.3;
-}
-
-.grid-floor {
-  position: absolute;
-  left: 50%;
-  bottom: -70px;
-  width: 200px;
-  height: 100px;
-  transform: translateX(-50%) rotateX(78deg);
-  transform-origin: center top;
-  background:
-    linear-gradient(rgba(59, 158, 255, 0.22) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(59, 158, 255, 0.22) 1px, transparent 1px);
-  background-size: 24px 24px;
-  opacity: 0.4;
-  pointer-events: none;
+.cube-vertex {
+  fill: var(--accent);
+  opacity: 0.85;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .wire-cube {
-    transform: rotateX(18deg) rotateY(-22deg) !important;
-  }
-
   .mock-orbit {
     animation: none;
   }

@@ -16,11 +16,11 @@ let targetY = 0
 let scrollTarget = 0
 
 function tick() {
-  gridX.value += (targetX * 0.55 - gridX.value) * 0.07
-  gridY.value += (targetY * 0.4 - gridY.value) * 0.07
-  draftX.value += (targetX * 1.35 - draftX.value) * 0.1
-  draftY.value += (targetY * 1.1 - draftY.value) * 0.1
-  scrollY.value += (scrollTarget - scrollY.value) * 0.08
+  gridX.value += (targetX * 0.4 - gridX.value) * 0.06
+  gridY.value += (targetY * 0.3 - gridY.value) * 0.06
+  draftX.value += (targetX * 0.95 - draftX.value) * 0.08
+  draftY.value += (targetY * 0.75 - draftY.value) * 0.08
+  scrollY.value += (scrollTarget - scrollY.value) * 0.07
   raf = requestAnimationFrame(tick)
 }
 
@@ -30,8 +30,8 @@ function onPointerMove(e: PointerEvent) {
   const rect = host.getBoundingClientRect()
   const nx = (e.clientX - rect.left) / rect.width - 0.5
   const ny = (e.clientY - rect.top) / rect.height - 0.5
-  targetX = nx * 18
-  targetY = ny * 12
+  targetX = nx * 14
+  targetY = ny * 9
 }
 
 function onPointerLeave() {
@@ -43,8 +43,7 @@ function onScroll() {
   if (reducedMotion.value || !host) return
   const rect = host.getBoundingClientRect()
   const viewH = window.innerHeight || 1
-  // mild drift while hero is in view
-  scrollTarget = Math.max(-24, Math.min(24, (-rect.top / viewH) * 28))
+  scrollTarget = Math.max(-16, Math.min(16, (-rect.top / viewH) * 20))
 }
 
 onMounted(() => {
@@ -72,16 +71,16 @@ onUnmounted(() => {
     <div
       class="layer layer-grid"
       :style="{
-        transform: `translate3d(${gridX}px, ${gridY + scrollY * 0.35}px, 0)`,
+        transform: `translate3d(${gridX}px, ${gridY + scrollY * 0.3}px, 0)`,
       }"
     >
       <svg class="blueprint-svg" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <pattern id="bp-grid" width="48" height="48" patternUnits="userSpaceOnUse">
-            <path d="M 48 0 L 0 0 0 48" fill="none" stroke="currentColor" stroke-width="1" />
+          <pattern id="bp-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" stroke-width="0.75" />
           </pattern>
-          <pattern id="bp-major" width="240" height="240" patternUnits="userSpaceOnUse">
-            <path d="M 240 0 L 0 0 0 240" fill="none" stroke="currentColor" stroke-width="1.25" />
+          <pattern id="bp-major" width="200" height="200" patternUnits="userSpaceOnUse">
+            <path d="M 200 0 L 0 0 0 200" fill="none" stroke="currentColor" stroke-width="1" />
           </pattern>
         </defs>
         <rect width="100%" height="100%" fill="url(#bp-grid)" class="grid-fine" />
@@ -92,75 +91,115 @@ onUnmounted(() => {
     <div
       class="layer layer-draft"
       :style="{
-        transform: `translate3d(${draftX}px, ${draftY + scrollY * 0.75}px, 0)`,
+        transform: `translate3d(${draftX}px, ${draftY + scrollY * 0.55}px, 0)`,
       }"
     >
-      <svg class="blueprint-svg draft-svg" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice">
-        <g class="draft-ink" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-          <!-- left detail: circular feature + dims -->
-          <circle cx="160" cy="150" r="52" stroke-width="1.2" opacity="0.55" />
-          <circle cx="160" cy="150" r="28" stroke-width="1" opacity="0.4" />
-          <line x1="160" y1="98" x2="160" y2="202" stroke-width="0.9" opacity="0.35" />
-          <line x1="108" y1="150" x2="212" y2="150" stroke-width="0.9" opacity="0.35" />
-          <!-- diameter callout -->
-          <line x1="220" y1="122" x2="290" y2="88" stroke-width="1" opacity="0.5" />
-          <line x1="290" y1="88" x2="340" y2="88" stroke-width="1" opacity="0.5" />
-          <text x="346" y="92" class="dim-text">Ø120</text>
+      <!--
+        One coherent sheet fragment: flange plate — front + side orthographic.
+        Lineweights and dims follow ordinary 2D drafting, not scattered ornaments.
+      -->
+      <svg
+        class="blueprint-svg draft-svg"
+        viewBox="0 0 1200 720"
+        preserveAspectRatio="xMidYMid slice"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          <marker
+            id="dim-arr"
+            viewBox="0 0 10 10"
+            refX="9"
+            refY="5"
+            markerWidth="5.5"
+            markerHeight="5.5"
+            orient="auto-start-reverse"
+          >
+            <path d="M 0 1.2 L 9 5 L 0 8.8 Z" fill="currentColor" />
+          </marker>
+        </defs>
+        <g class="geom" fill="none" stroke="currentColor" stroke-linecap="square" stroke-linejoin="miter">
+          <!-- FRONT: rectangular flange -->
+          <rect x="140" y="120" width="280" height="220" stroke-width="1.35" />
+          <!-- outer bolt circle -->
+          <circle cx="280" cy="230" r="78" stroke-width="1.1" />
+          <!-- hub -->
+          <circle cx="280" cy="230" r="42" stroke-width="1.2" />
+          <!-- bore -->
+          <circle cx="280" cy="230" r="22" stroke-width="1.15" />
+          <!-- centerlines -->
+          <line x1="280" y1="118" x2="280" y2="342" stroke-width="0.7" stroke-dasharray="8 4 2 4" class="center" />
+          <line x1="138" y1="230" x2="422" y2="230" stroke-width="0.7" stroke-dasharray="8 4 2 4" class="center" />
+          <!-- 4 bolt holes on PCD -->
+          <circle cx="280" cy="152" r="7" stroke-width="1" />
+          <circle cx="280" cy="308" r="7" stroke-width="1" />
+          <circle cx="202" cy="230" r="7" stroke-width="1" />
+          <circle cx="358" cy="230" r="7" stroke-width="1" />
 
-          <!-- angle / chamfer note -->
-          <path d="M 95 230 L 95 280 L 150 280" stroke-width="1.1" opacity="0.45" />
-          <path d="M 95 255 A 25 25 0 0 1 120 280" stroke-width="1" opacity="0.4" />
-          <text x="128" y="268" class="dim-text">45°</text>
+          <!-- SIDE: thickness + hub protrusion -->
+          <rect x="500" y="145" width="36" height="170" stroke-width="1.35" />
+          <rect x="536" y="188" width="48" height="84" stroke-width="1.2" />
+          <!-- bore as hidden in side -->
+          <line x1="500" y1="208" x2="584" y2="208" stroke-width="0.75" stroke-dasharray="5 3" class="hidden" />
+          <line x1="500" y1="252" x2="584" y2="252" stroke-width="0.75" stroke-dasharray="5 3" class="hidden" />
+          <line x1="520" y1="145" x2="520" y2="315" stroke-width="0.65" stroke-dasharray="8 4 2 4" class="center" />
 
-          <!-- vertical height dim -->
-          <line x1="70" y1="320" x2="70" y2="520" stroke-width="1" opacity="0.45" />
-          <line x1="58" y1="320" x2="82" y2="320" stroke-width="1" opacity="0.45" />
-          <line x1="58" y1="520" x2="82" y2="520" stroke-width="1" opacity="0.45" />
-          <text x="42" y="425" class="dim-text" transform="rotate(-90 42 425)">200</text>
-
-          <!-- plate outline fragment -->
-          <path
-            d="M 110 340 L 210 340 L 245 390 L 245 470 L 110 470 Z"
-            stroke-width="1.15"
-            opacity="0.4"
-          />
-          <circle cx="145" cy="400" r="10" stroke-width="1" opacity="0.4" />
-          <text x="168" y="405" class="dim-text">Ø20</text>
-          <line x1="110" y1="490" x2="245" y2="490" stroke-width="1" opacity="0.45" />
-          <line x1="110" y1="482" x2="110" y2="498" stroke-width="1" opacity="0.4" />
-          <line x1="245" y1="482" x2="245" y2="498" stroke-width="1" opacity="0.4" />
-          <text x="162" y="512" class="dim-text">135</text>
-
-          <!-- radius callout -->
-          <path d="M 250 470 Q 290 510 250 550" stroke-width="1.1" opacity="0.4" />
-          <line x1="275" y1="510" x2="330" y2="540" stroke-width="1" opacity="0.45" />
-          <text x="336" y="544" class="dim-text">R40</text>
-
-          <!-- top-right section lines -->
-          <line x1="780" y1="90" x2="1080" y2="90" stroke-width="1" opacity="0.35" />
-          <line x1="780" y1="90" x2="780" y2="210" stroke-width="1" opacity="0.3" />
-          <line x1="1080" y1="90" x2="1080" y2="210" stroke-width="1" opacity="0.3" />
-          <line x1="780" y1="210" x2="1080" y2="210" stroke-width="1" opacity="0.35" />
-          <line x1="830" y1="130" x2="1030" y2="130" stroke-width="0.9" opacity="0.28" stroke-dasharray="6 5" />
-          <line x1="830" y1="170" x2="1030" y2="170" stroke-width="0.9" opacity="0.28" stroke-dasharray="6 5" />
-          <text x="900" y="80" class="dim-text">300</text>
-
-          <!-- right iso hint box -->
-          <path
-            d="M 980 380 L 1120 340 L 1120 460 L 980 500 Z"
-            stroke-width="1.1"
-            opacity="0.32"
-          />
-          <path d="M 980 380 L 860 420 L 860 540 L 980 500" stroke-width="1.1" opacity="0.28" />
-          <text x="1005" y="425" class="dim-text">ISO</text>
+          <!-- section hatching on side flange face hint -->
+          <g class="hatch" stroke-width="0.55">
+            <line x1="506" y1="155" x2="530" y2="175" />
+            <line x1="506" y1="170" x2="530" y2="190" />
+            <line x1="506" y1="185" x2="530" y2="205" />
+            <line x1="506" y1="255" x2="530" y2="275" />
+            <line x1="506" y1="270" x2="530" y2="290" />
+            <line x1="506" y1="285" x2="530" y2="305" />
+          </g>
         </g>
 
-        <g class="nodes">
-          <circle cx="160" cy="150" r="2.4" />
-          <circle cx="245" cy="390" r="2" />
-          <circle cx="780" cy="90" r="2" />
-          <circle cx="1080" cy="210" r="2.2" />
-          <circle cx="980" cy="380" r="2" />
+        <g class="dims" fill="none" stroke="currentColor" stroke-width="0.85" stroke-linecap="butt">
+          <!-- overall width 280 -->
+          <line x1="140" y1="96" x2="420" y2="96" marker-start="url(#dim-arr)" marker-end="url(#dim-arr)" />
+          <line x1="140" y1="104" x2="140" y2="120" />
+          <line x1="420" y1="104" x2="420" y2="120" />
+          <text x="268" y="88" class="dim-text">280</text>
+
+          <!-- height 220 -->
+          <line x1="100" y1="120" x2="100" y2="340" marker-start="url(#dim-arr)" marker-end="url(#dim-arr)" />
+          <line x1="100" y1="120" x2="132" y2="120" />
+          <line x1="100" y1="340" x2="132" y2="340" />
+          <text x="78" y="236" class="dim-text" transform="rotate(-90 78 236)">220</text>
+
+          <!-- PCD Ø156 -->
+          <line x1="280" y1="230" x2="350" y2="165" />
+          <line x1="350" y1="165" x2="398" y2="165" />
+          <text x="404" y="169" class="dim-text">Ø156</text>
+
+          <!-- bore -->
+          <line x1="280" y1="230" x2="248" y2="268" />
+          <line x1="236" y1="278" x2="248" y2="268" />
+          <text x="198" y="292" class="dim-text">Ø44</text>
+
+          <!-- bolt hole -->
+          <line x1="358" y1="230" x2="395" y2="248" />
+          <text x="400" y="252" class="dim-text">Ø14</text>
+
+          <!-- flange thickness -->
+          <line x1="500" y1="370" x2="536" y2="370" marker-start="url(#dim-arr)" marker-end="url(#dim-arr)" />
+          <line x1="500" y1="324" x2="500" y2="370" />
+          <line x1="536" y1="324" x2="536" y2="370" />
+          <text x="506" y="388" class="dim-text">18</text>
+
+          <!-- hub length -->
+          <line x1="536" y1="392" x2="584" y2="392" marker-start="url(#dim-arr)" marker-end="url(#dim-arr)" />
+          <line x1="536" y1="328" x2="536" y2="392" />
+          <line x1="584" y1="280" x2="584" y2="392" />
+          <text x="544" y="410" class="dim-text">45</text>
+        </g>
+
+        <!-- quiet sheet corner (no fake title block text clutter) -->
+        <g class="sheet-frame" fill="none" stroke="currentColor" stroke-width="0.9">
+          <rect x="920" y="480" width="220" height="160" opacity="0.35" />
+          <line x1="920" y1="520" x2="1140" y2="520" opacity="0.3" />
+          <line x1="1000" y1="480" x2="1000" y2="640" opacity="0.25" />
+          <line x1="1070" y1="480" x2="1070" y2="640" opacity="0.25" />
         </g>
       </svg>
     </div>
@@ -180,7 +219,7 @@ onUnmounted(() => {
 
 .layer {
   position: absolute;
-  inset: -40px;
+  inset: -36px;
   will-change: transform;
 }
 
@@ -190,51 +229,60 @@ onUnmounted(() => {
   display: block;
 }
 
-.draft-svg {
-  opacity: 0.95;
-}
-
 .grid-fine {
-  opacity: 0.2;
+  opacity: 0.14;
 }
 
 .grid-major {
-  opacity: 0.3;
+  opacity: 0.22;
 }
 
-.draft-ink {
-  opacity: 0.85;
+.draft-svg {
+  opacity: 0.55;
+}
+
+.geom {
+  opacity: 0.9;
+}
+
+.center,
+.hidden {
+  opacity: 0.75;
+}
+
+.hatch {
+  opacity: 0.45;
+}
+
+.dims {
+  opacity: 0.8;
 }
 
 .dim-text {
-  fill: var(--accent);
+  fill: currentColor;
+  stroke: none;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 15px;
-  letter-spacing: 0.04em;
-  opacity: 0.7;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  opacity: 0.85;
 }
 
-.nodes circle {
-  fill: var(--accent);
-  opacity: 0.5;
+.sheet-frame {
+  opacity: 0.9;
 }
 
 .blueprint-fade {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 50% 45% at 78% 32%, rgba(74, 168, 255, 0.1), transparent 58%),
-    radial-gradient(ellipse 40% 50% at 12% 55%, rgba(74, 168, 255, 0.06), transparent 55%),
-    linear-gradient(to bottom, transparent 35%, var(--bg) 97%);
+    radial-gradient(ellipse 48% 42% at 72% 30%, rgba(74, 168, 255, 0.07), transparent 60%),
+    linear-gradient(to right, rgba(22, 27, 36, 0.15) 0%, transparent 28%, transparent 62%, rgba(22, 27, 36, 0.35) 100%),
+    linear-gradient(to bottom, transparent 42%, var(--bg) 96%);
 }
 
 @media (max-width: 699px) {
-  .layer-draft {
-    opacity: 0.72;
-  }
-
-  .dim-text {
-    font-size: 13px;
+  .draft-svg {
+    opacity: 0.4;
   }
 }
 
