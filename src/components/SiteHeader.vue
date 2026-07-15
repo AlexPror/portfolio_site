@@ -21,9 +21,15 @@ function navClick(label: string) {
         <a href="#services" @click="navClick('services')">Услуги</a>
         <a href="#contact" @click="navClick('contact')">Контакт</a>
       </nav>
-      <RouterLink to="/app" class="btn btn-primary btn-sm" @click="navClick('viewer')">
+      <a
+        class="btn btn-primary btn-sm"
+        :href="site.deskReviewUrl"
+        target="_blank"
+        rel="noopener"
+        @click="navClick('viewer')"
+      >
         3D вьювер
-      </RouterLink>
+      </a>
     </div>
   </header>
 </template>

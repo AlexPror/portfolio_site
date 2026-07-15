@@ -31,7 +31,10 @@ export const site = {
     /** Ссылка Telegram; переопределяется VITE_TELEGRAM_URL */
     telegram: import.meta.env.VITE_TELEGRAM_URL || 'https://t.me/Alexandr_Vorobjev',
   },
-  deskReviewUrl: import.meta.env.VITE_DESKREVIEW_URL ?? '',
+  /** Live DeskReview; override via VITE_DESKREVIEW_URL (e.g. local :5173) */
+  deskReviewUrl:
+    (import.meta.env.VITE_DESKREVIEW_URL || '').trim() ||
+    'https://alexpror.github.io/3d_viewer_1.0/',
   /** Formspree / Web3Forms — приоритетнее FormSubmit. Пример: ключ Web3Forms */
   web3formsKey: import.meta.env.VITE_WEB3FORMS_KEY ?? '',
 }
@@ -154,9 +157,9 @@ export const services: ServiceItem[] = [
       'Параметризация сборок, пакетные операции, add-in на SolidWorks API (C# / .NET).',
   },
   {
-    title: '3D вьювер в браузере',
+    title: 'DeskReview — PDF и 3D в браузере',
     description:
-      'Модель и PDF без установки CAD: замечания, измерения, отчёт для согласования.',
+      'Чертёж и модель без CAD: замечания со статусами, измерения, сечения, режим «Рядом», PDF-отчёт. STEP через WASM.',
   },
   {
     title: 'Раскрой и документооборот',

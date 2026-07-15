@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import { site } from '@/data/content'
 import { logger } from '@/lib/logger'
 
 function openDemo() {
-  logger.info('deskreview section cta')
+  logger.info('deskreview section cta', { url: site.deskReviewUrl })
 }
 </script>
 
@@ -10,11 +11,11 @@ function openDemo() {
   <section id="deskreview" class="section deskreview-section">
     <div class="container">
       <div class="section-head">
-        <p class="eyebrow">Продукт</p>
-        <h2>DeskReview — согласование PDF и 3D в браузере</h2>
+        <p class="eyebrow">Своя разработка</p>
+        <h2>DeskReview 1.0 — PDF и 3D в браузере</h2>
         <p class="section-lead">
-          PDF-чертеж и 3D-модель в одной вкладке: замечания, измерения, скриншот-отчёт.
-          STEP / STL / IGES / GLB — без CAD у получателя.
+          Чертёж и модель без установки CAD: вкладки 2D / 3D / Рядом, замечания со статусами,
+          измерения и сечения. Файлы остаются у вас в браузере — без регистрации и облака.
         </p>
       </div>
       <div class="deskreview-panel">
@@ -35,13 +36,21 @@ function openDemo() {
           </div>
         </div>
         <ul class="feature-list">
-          <li>Мультимодельная сборка и измерения</li>
-          <li>Замечания на PDF и 3D, экспорт отчёта</li>
-          <li>STEP через WASM или серверную конвертацию</li>
-          <li>Режим «Производство (QR)» для цеха</li>
+          <li>PDF-ревью: пометки, статусы замечаний, sidecar / flattened export</li>
+          <li>3D: дерево сборки, измерения, сечения, анимация</li>
+          <li>Режим «Рядом» — PDF и модель на одном экране</li>
+          <li>STEP / STL / IGES / GLB · скриншот-отчёт в PDF</li>
         </ul>
       </div>
-      <RouterLink to="/app" class="btn btn-primary" @click="openDemo">Открыть 3D вьювер →</RouterLink>
+      <a
+        class="btn btn-primary"
+        :href="site.deskReviewUrl"
+        target="_blank"
+        rel="noopener"
+        @click="openDemo"
+      >
+        Открыть DeskReview →
+      </a>
     </div>
   </section>
 </template>

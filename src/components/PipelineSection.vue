@@ -16,7 +16,7 @@ import { pipelineSteps } from '@/data/content'
         </template>
       </div>
       <p class="pipeline-note">
-        Параллельно — <strong>DeskReview</strong> для согласования PDF и 3D в браузере.
+        Параллельно — <strong>DeskReview</strong>: ревью PDF и 3D в браузере без CAD.
       </p>
     </div>
   </section>

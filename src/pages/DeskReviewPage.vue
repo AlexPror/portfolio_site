@@ -3,51 +3,48 @@ import { computed, onMounted } from 'vue'
 import { site } from '@/data/content'
 import { logger } from '@/lib/logger'
 
-const externalUrl = computed(() => site.deskReviewUrl.trim())
+const viewerUrl = computed(() => site.deskReviewUrl.trim())
 
 onMounted(() => {
-  logger.info('deskreview page mounted', { hasExternalUrl: Boolean(externalUrl.value) })
+  logger.info('deskreview page mounted', { url: viewerUrl.value })
 })
 
-function openExternal() {
-  if (!externalUrl.value) return
-  logger.info('deskreview external open', { url: externalUrl.value })
-  window.open(externalUrl.value, '_blank', 'noopener')
+function openViewer() {
+  logger.info('deskreview open', { url: viewerUrl.value })
+  window.open(viewerUrl.value, '_blank', 'noopener')
 }
 </script>
 
 <template>
   <section class="section demo-page">
     <div class="container demo-card">
-      <p class="eyebrow">DeskReview</p>
+      <p class="eyebrow">DeskReview 1.0</p>
       <h1>3D / PDF вьювер</h1>
       <p class="section-lead">
-        Полный DeskReview — отдельное приложение (Vue + Three.js). Запустите его локально из каталога
-        <code>3d_viewer</code> или укажите URL в переменной <code>VITE_DESKREVIEW_URL</code>.
+        Ревью чертежей и моделей в Chrome / Edge / Firefox: замечания со статусами (sidecar JSON),
+        измерения и сечения на 3D, режим «Рядом», скриншот-отчёт в PDF.
+        STL / GLB / STEP / IGES — без установки CAD; на демо STEP до ~30&nbsp;МБ через WASM.
       </p>
 
       <div class="demo-actions">
-        <button
-          v-if="externalUrl"
-          type="button"
-          class="btn btn-primary"
-          @click="openExternal"
-        >
+        <button type="button" class="btn btn-primary" @click="openViewer">
           Открыть DeskReview
         </button>
-        <RouterLink v-else to="/" class="btn btn-primary">На главную</RouterLink>
+        <a
+          class="btn btn-ghost"
+          :href="viewerUrl"
+          target="_blank"
+          rel="noopener"
+        >
+          Открыть в новой вкладке →
+        </a>
         <RouterLink to="/" class="btn btn-ghost">← Назад</RouterLink>
       </div>
 
-      <div class="demo-steps">
-        <h2>Локальный запуск DeskReview</h2>
-        <ol>
-          <li><code>cd ..\3d_viewer\viewer</code></li>
-          <li><code>npm install</code></li>
-          <li><code>npm run dev</code></li>
-          <li>Добавьте в <code>.env</code>: <code>VITE_DESKREVIEW_URL=http://localhost:5173</code></li>
-        </ol>
-      </div>
+      <p class="demo-url">
+        <span class="muted">Демо:</span>
+        <a :href="viewerUrl" target="_blank" rel="noopener">{{ viewerUrl }}</a>
+      </p>
     </div>
   </section>
 </template>
@@ -61,29 +58,20 @@ function openExternal() {
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
-  margin: 1.5rem 0 2rem;
+  margin: 1.5rem 0 1.25rem;
 }
 
-.demo-steps {
-  padding: 1.25rem;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  border-radius: 12px;
+.demo-url {
+  font-size: 0.95rem;
+  word-break: break-all;
 }
 
-.demo-steps ol {
-  margin: 0.75rem 0 0;
-  padding-left: 1.25rem;
+.demo-url .muted {
   color: var(--text-muted);
+  margin-right: 0.35rem;
 }
 
-.demo-steps li {
-  margin-bottom: 0.5rem;
-}
-
-code {
-  font-family: var(--font-mono);
-  font-size: 0.9em;
+.demo-url a {
   color: var(--accent);
 }
 </style>

@@ -6,7 +6,7 @@ import { site } from '@/data/content'
   <footer class="site-footer">
     <div class="container footer-inner">
       <p class="footer-note">
-        Разработка ПО для инженерии и производства. Указанные продукты созданы для
+        Разработка ПО для инженерии и производства. Указанные проекты созданы для
         промышленных заказчиков; бренды и данные объектов не публикуются.
       </p>
       <div class="footer-social">

@@ -19,7 +19,7 @@ http://localhost:5180
 | Переменная | Зачем |
 |------------|--------|
 | `VITE_TELEGRAM_URL` | Telegram (уже есть default в коде) |
-| `VITE_DESKREVIEW_URL` | Ссылка на полный вьювер на `/app` |
+| `VITE_DESKREVIEW_URL` | Ссылка на DeskReview (по умолчанию [демо на Pages](https://alexpror.github.io/3d_viewer_1.0/)) |
 | `VITE_WEB3FORMS_KEY` | Форма → почта ([web3forms.com](https://web3forms.com), включите captcha в кабинете) |
 
 Без Web3Forms используется FormSubmit — подтвердите активацию письма с почты.

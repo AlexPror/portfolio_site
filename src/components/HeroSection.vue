@@ -20,7 +20,15 @@ function ctaContact() {
         <h1>{{ site.tagline }}</h1>
         <p class="lead">{{ site.subtitle }}</p>
         <div class="hero-actions">
-          <RouterLink to="/app" class="btn btn-primary" @click="ctaDemo">Открыть 3D вьювер</RouterLink>
+          <a
+            class="btn btn-primary"
+            :href="site.deskReviewUrl"
+            target="_blank"
+            rel="noopener"
+            @click="ctaDemo"
+          >
+            Открыть 3D вьювер
+          </a>
           <a href="#contact" class="btn btn-ghost" @click="ctaContact">Обсудить задачу</a>
         </div>
       </div>
