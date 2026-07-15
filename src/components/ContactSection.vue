@@ -166,14 +166,22 @@ async function submit() {
 .social-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  padding: 0.55rem 0.9rem;
+  padding: 0.65rem 0.9rem;
+  min-height: 44px;
   border: 1px solid var(--border);
   border-radius: 8px;
   color: var(--text);
   background: var(--bg-card);
   font-size: 0.95rem;
   transition: border-color 0.2s, color 0.2s;
+}
+
+@media (max-width: 479px) {
+  .social-btn {
+    flex: 1 1 auto;
+  }
 }
 
 .social-btn:hover {

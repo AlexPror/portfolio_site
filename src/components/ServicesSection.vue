@@ -115,17 +115,44 @@ function consultClick(where: string) {
   margin-bottom: 1rem;
 }
 
+.consult-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.consult-actions .btn {
+  width: 100%;
+}
+
+@media (min-width: 800px) {
+  .consult-actions {
+    align-items: stretch;
+    min-width: 260px;
+  }
+}
+
 .price-tabs {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0.5rem;
   margin-bottom: 1rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 0.15rem;
+}
+
+.price-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .price-tab {
+  flex: 0 0 auto;
   font-family: var(--font-sans);
   font-size: 0.95rem;
-  padding: 0.5rem 1rem;
+  padding: 0.55rem 1rem;
+  min-height: 44px;
   border-radius: 8px;
   border: 1px solid var(--border);
   background: var(--bg-card);
@@ -133,6 +160,14 @@ function consultClick(where: string) {
   cursor: pointer;
   transition: border-color 0.2s, color 0.2s, background 0.2s;
 }
+
+@media (min-width: 640px) {
+  .price-tabs {
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+}
+
 
 .price-tab:hover {
   color: var(--text);
@@ -159,7 +194,7 @@ function consultClick(where: string) {
 
 .consult-banner {
   margin-top: 2.5rem;
-  padding: 1.5rem 1.75rem;
+  padding: 1.25rem;
   display: grid;
   gap: 1.25rem;
   align-items: center;
@@ -171,6 +206,7 @@ function consultClick(where: string) {
 
 @media (min-width: 800px) {
   .consult-banner {
+    padding: 1.5rem 1.75rem;
     grid-template-columns: 1fr auto;
   }
 }
@@ -193,18 +229,5 @@ function consultClick(where: string) {
   margin: 0;
   color: var(--text-muted);
   font-size: 1rem;
-}
-
-.consult-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-@media (min-width: 800px) {
-  .consult-actions {
-    align-items: stretch;
-    min-width: 260px;
-  }
 }
 </style>
