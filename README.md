@@ -2,7 +2,8 @@
 
 Лендинг: разработка ПО для CAD, BIM и производства.
 
-**Сайт:** https://alexpror.github.io/portfolio_site/
+**Сайт:** https://alexpror.github.io/portfolio_site/  
+**Релиз:** [v1.0.0](https://github.com/AlexPror/portfolio_site/releases/tag/v1.0.0)
 
 ## Запуск
 
@@ -31,6 +32,13 @@ http://localhost:5180
 Один раз: **Settings → Pages → Source: GitHub Actions**.
 
 `base` в Vite: `/portfolio_site/` (имя репозитория). При смене имени репо обновите `vite.config.ts`, `robots.txt`, `sitemap.xml` и `index.html`.
+
+## SEO
+
+- `index.html`: description, Open Graph, Twitter Card, JSON-LD (WebSite / Person / ProfessionalService)
+- `public/og.jpg` — превью для соцсетей
+- `robots.txt` + `sitemap.xml`
+- Заголовки и description по маршрутам (`/` и `/app`)
 
 ## Сборка
 
