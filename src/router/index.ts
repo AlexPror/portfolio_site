@@ -4,7 +4,7 @@ import DeskReviewPage from '@/pages/DeskReviewPage.vue'
 import { logger } from '@/lib/logger'
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     { path: '/', name: 'home', component: HomePage },
     { path: '/app', name: 'deskreview', component: DeskReviewPage },

@@ -2,6 +2,8 @@
 
 Лендинг: разработка ПО для CAD, BIM и производства.
 
+**Сайт:** https://alexpror.github.io/portfolio_site/
+
 ## Запуск
 
 ```bat
@@ -22,17 +24,21 @@ http://localhost:5180
 
 Без Web3Forms используется FormSubmit — подтвердите активацию письма с почты.
 
-## Перед деплоем
+## GitHub Pages
 
-1. В `public/robots.txt` и `public/sitemap.xml` замените `YOUR_DOMAIN` на ваш домен.
-2. На хостинге желательны заголовки: HTTPS, `Referrer-Policy`, CSP по возможности.
-3. Клиентские логи на сервер пишутся **только в `npm run dev` / preview**, не в production-сборке.
+После пуша в `main` Actions собирает сайт и деплоит на Pages.
+
+Один раз: **Settings → Pages → Source: GitHub Actions**.
+
+`base` в Vite: `/portfolio_site/` (имя репозитория). При смене имени репо обновите `vite.config.ts`, `robots.txt`, `sitemap.xml` и `index.html`.
 
 ## Сборка
 
 ```bat
 build.bat
 ```
+
+Клиентские логи на сервер — только в `npm run dev` / preview, не в production.
 
 ## Стек
 

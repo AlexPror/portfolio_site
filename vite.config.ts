@@ -4,6 +4,7 @@ import { fileURLToPath, URL } from 'node:url'
 import { clientLogPlugin } from './vite-plugin-client-log'
 
 export default defineConfig({
+  base: '/portfolio_site/',
   plugins: [vue(), clientLogPlugin()],
   resolve: {
     alias: {
