@@ -91,7 +91,7 @@ async function submit() {
       <div>
         <div class="section-head">
           <p class="eyebrow">Контакт</p>
-          <h2>Обсудить задачу</h2>
+          <h2>Оставить заявку</h2>
           <p class="section-lead">
             Платформа (Revit / КОМПАС / web), формат данных, срок. При необходимости
             подпишем соглашение о неразглашении.

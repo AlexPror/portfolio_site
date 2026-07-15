@@ -144,7 +144,7 @@ onUnmounted(() => {
           >
             Открыть 3D вьювер
           </a>
-          <a href="#contact" class="btn btn-ghost" @click="ctaContact">Обсудить задачу</a>
+          <a href="#contact" class="btn btn-ghost" @click="ctaContact">Оставить заявку</a>
         </div>
       </div>
       <div class="hero-visual" aria-hidden="true">
