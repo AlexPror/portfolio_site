@@ -2,6 +2,8 @@
 
 Лендинг: разработка ПО для CAD, BIM и производства.
 
+[![CAD · BIM · Production](./public/og.jpg)](https://alexpror.github.io/portfolio_site/)
+
 **Сайт:** https://alexpror.github.io/portfolio_site/  
 **Релиз:** [v1.0.0](https://github.com/AlexPror/portfolio_site/releases/tag/v1.0.0)
 
@@ -36,7 +38,8 @@ http://localhost:5180
 ## SEO
 
 - `index.html`: description, Open Graph, Twitter Card, JSON-LD (WebSite / Person / ProfessionalService)
-- `public/og.jpg` — превью для соцсетей
+- `public/og.jpg` — превью для соцсетей и README
+- GitHub Social preview: **Settings → General → Social preview** → загрузить `.github/social-preview.jpg` (тот же кадр)
 - `robots.txt` + `sitemap.xml`
 - Заголовки и description по маршрутам (`/` и `/app`)
 

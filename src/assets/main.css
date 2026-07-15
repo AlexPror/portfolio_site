@@ -478,6 +478,7 @@ p {
   display: none;
   align-items: center;
   justify-content: center;
+  perspective: 720px;
 }
 
 @media (min-width: 600px) {
@@ -493,74 +494,100 @@ p {
   }
 }
 
+.cube-stage {
+  position: relative;
+  width: min(220px, 46vw);
+  height: min(220px, 46vw);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-style: preserve-3d;
+}
+
 .wire-cube {
   position: relative;
-  width: min(200px, 42vw);
-  height: min(200px, 42vw);
-  animation: float 8s ease-in-out infinite;
+  width: 120px;
+  height: 120px;
+  transform-style: preserve-3d;
+  will-change: transform;
 }
 
 .cube-face {
   position: absolute;
-  inset: 22%;
+  inset: 0;
   border: 1.5px solid var(--accent);
-  opacity: 0.45;
-  transform: rotateX(55deg) rotateZ(45deg);
+  opacity: 0.5;
+  background: rgba(74, 168, 255, 0.04);
+  backface-visibility: visible;
+}
+
+.face-front {
+  transform: translateZ(60px);
 }
 
 .face-back {
-  inset: 30%;
-  opacity: 0.2;
+  transform: rotateY(180deg) translateZ(60px);
+  opacity: 0.28;
+}
+
+.face-top {
+  transform: rotateX(90deg) translateZ(60px);
+  opacity: 0.35;
 }
 
 .cube-edge {
   position: absolute;
   background: var(--accent);
-  opacity: 0.35;
+  opacity: 0.4;
+  transform-style: preserve-3d;
 }
 
 .e1 {
   width: 1.5px;
-  height: 72px;
+  height: 120px;
   left: 50%;
-  top: 12%;
-  transform: translateX(-50%);
+  top: 0;
+  transform: translateX(-50%) translateZ(0);
 }
 
 .e2 {
-  width: 72px;
+  width: 120px;
   height: 1.5px;
-  bottom: 32%;
-  left: 12%;
-  transform: rotate(-30deg);
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%) rotateY(90deg) translateZ(0);
+}
+
+.e3 {
+  width: 120px;
+  height: 1.5px;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%) rotateX(90deg);
+  opacity: 0.3;
 }
 
 .grid-floor {
   position: absolute;
-  bottom: 0;
   left: 50%;
-  width: 220px;
-  height: 110px;
-  transform: translateX(-50%) rotateX(72deg);
+  bottom: -70px;
+  width: 200px;
+  height: 100px;
+  transform: translateX(-50%) rotateX(78deg);
+  transform-origin: center top;
   background:
-    linear-gradient(rgba(59, 158, 255, 0.2) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(59, 158, 255, 0.2) 1px, transparent 1px);
-  background-size: 28px 28px;
-  opacity: 0.35;
-}
-
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-6px);
-  }
+    linear-gradient(rgba(59, 158, 255, 0.22) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59, 158, 255, 0.22) 1px, transparent 1px);
+  background-size: 24px 24px;
+  opacity: 0.4;
+  pointer-events: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .wire-cube,
+  .wire-cube {
+    transform: rotateX(18deg) rotateY(-22deg) !important;
+  }
+
   .mock-orbit {
     animation: none;
   }
