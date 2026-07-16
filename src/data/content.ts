@@ -1,6 +1,7 @@
 export interface KpiItem {
   value: string
   label: string
+  note?: string
 }
 
 export interface ProjectCard {
@@ -19,38 +20,60 @@ export interface ServiceItem {
 
 export interface AudienceItem {
   title: string
+  outcome: string
+}
+
+export interface WorkStep {
+  title: string
+  description: string
 }
 
 export const site = {
   name: 'CAD · BIM · Production',
   tagline: 'Разработка ПО для CAD, BIM и производства',
   subtitle:
-    'Плагины для Revit, КОМПАС-3D и SolidWorks. Спецификации, выпуск чертежей, 3D вьювер. Названия заказчиков не публикуются.',
+    'Плагины и автоматизация для Revit, КОМПАС-3D и SolidWorks: спецификации, выпуск чертежей, подготовка к производству.',
+  author: 'Александр Воробьёв',
+  location: 'Россия · удалённо',
+  experience: 'Промышленная автоматизация CAD/BIM',
   contact: {
     email: 'vorobjev.alexandr-2017@yandex.ru',
-    /** Ссылка Telegram; переопределяется VITE_TELEGRAM_URL */
     telegram: import.meta.env.VITE_TELEGRAM_URL || 'https://t.me/Alexandr_Vorobjev',
   },
-  /** Live DeskReview; override via VITE_DESKREVIEW_URL (e.g. local :5173) */
   deskReviewUrl:
     (import.meta.env.VITE_DESKREVIEW_URL || '').trim() ||
     'https://alexpror.github.io/3d_viewer_1.0/',
-  /** Formspree / Web3Forms — приоритетнее FormSubmit. Пример: ключ Web3Forms */
   web3formsKey: import.meta.env.VITE_WEB3FORMS_KEY ?? '',
 }
 
 export const audiences: AudienceItem[] = [
-  { title: 'Конструкторские отделы' },
-  { title: 'BIM и 3D-проектирование' },
-  { title: 'Производство и снабжение' },
-  { title: 'Согласование без CAD' },
-  { title: 'Заказная автоматизация' },
+  {
+    title: 'Конструкторские отделы',
+    outcome: 'Листы, спецификации и штампы под ваш шаблон',
+  },
+  {
+    title: 'BIM и 3D-проектирование',
+    outcome: 'Revit: виды, альбомы, размеры на виде',
+  },
+  {
+    title: 'Производство и снабжение',
+    outcome: 'DXF, раскрой, связка с цехом',
+  },
+  {
+    title: 'Согласование без CAD',
+    outcome: 'PDF и 3D в браузере — DeskReview',
+  },
+  {
+    title: 'Заказная автоматизация',
+    outcome: 'Инструмент под ваш процесс, не коробка',
+  },
 ]
 
-export const kpis: KpiItem[] = [
-  { value: '~2×', label: 'быстрее выпуск документации' },
-  { value: '~95%', label: 'КПД раскроя профилей' },
-  { value: 'Revit · КОМПАС · SW', label: 'CAD / BIM / 3D' },
+/** Проверяемые факты вместо абстрактных KPI */
+export const heroFacts: KpiItem[] = [
+  { value: 'Revit 2021–22', label: 'версии add-in' },
+  { value: '2–6 нед.', label: 'прототип по ТЗ', note: 'ориентир' },
+  { value: 'NDA', label: 'по запросу', note: 'конфиденциально' },
 ]
 
 export const projects: ProjectCard[] = [
@@ -59,7 +82,7 @@ export const projects: ProjectCard[] = [
     platform: 'Revit',
     title: 'Add-in: виды на лист и цепочки размеров',
     description:
-      'Пакет видов и листов (A4…A0), шаблоны, автомасштаб, ориентация. Цепочка размеров по секущей на виде. Revit 2021/2022.',
+      'Пакет видов и листов (A4…A0), шаблоны, автомасштаб, ориентация. Цепочка размеров по секущей на виде.',
     bullets: [
       'Выбор элементов → листы 2×2 под шаблоны',
       'Ориентация проекций и формат листа',
@@ -72,7 +95,7 @@ export const projects: ProjectCard[] = [
     platform: 'КОМПАС-3D',
     title: 'Полный цикл документации КМ / КМД',
     description:
-      'Спецификация → комплект чертежей (фильтры, нумерация в альбоме) → PDF → сводная спецификация → раскрой профиля и листа.',
+      'Спецификация → комплект чертежей → PDF → сводная спецификация → раскрой профиля и листа. Металлоконструкции.',
     bullets: [
       'Спецификация под шаблон компании, Excel, FRW',
       'Штампы, перечень, пакетный PDF/DWG/DXF',
@@ -85,7 +108,7 @@ export const projects: ProjectCard[] = [
     platform: 'КОМПАС-3D',
     title: 'Менеджер типовых проектов',
     description:
-      'Новый заказ из шаблона: копирование сборки, параметры габаритов, обозначения, штампы, PDF и DXF развёрток.',
+      'Новый заказ из шаблона: копирование сборки, габариты, обозначения, штампы, PDF и DXF развёрток.',
     bullets: [
       'Полный цикл в один запуск',
       'Каскад переменных по шаблону',
@@ -98,10 +121,11 @@ export const projects: ProjectCard[] = [
     platform: 'SolidWorks',
     title: 'Параметризация и обмен геометрии',
     description:
-      'Параметрические сборки, подготовка геометрии для downstream. Add-in на SolidWorks API — по ТЗ.',
+      'Параметрические сборки листового металла и профилей, пакетный экспорт для раскроя и согласования.',
     bullets: [
-      'Конфигурации и пакетные операции',
-      'Экспорт в цепочку CAD → производство',
+      'Конфигурации и пакетные операции в сборке',
+      'Экспорт STEP/DXF в цепочку CAD → производство',
+      'Add-in на SolidWorks API под ваш регламент',
     ],
     tags: ['SolidWorks API', 'C#', '.NET'],
   },
@@ -110,10 +134,10 @@ export const projects: ProjectCard[] = [
     platform: 'Листовой металл',
     title: 'Коррекция разверток DXF перед раскроем',
     description:
-      'Подгонка длины развертки до эталона, когда CAD даёт погрешность на криволинейных деталях. Дуги и отверстия сохраняются.',
+      'Подгонка длины развертки до эталона, когда CAD даёт погрешность на криволинейных деталях.',
     bullets: [
       'Растяжение по основанию с опорными дугами',
-      'Внешний радиус из внутреннего (толщина, гиб)',
+      'Внешний радиус из внутреннего',
       'Пакетная обработка папки разверток',
     ],
     tags: ['Python', 'ezdxf', 'DXF'],
@@ -122,49 +146,50 @@ export const projects: ProjectCard[] = [
     id: 'nesting',
     platform: 'Web',
     title: 'Раскрой листового металла',
-    description: 'DXF → оптимизация с поворотом → визуализация и Excel/PDF.',
-    bullets: ['Проверка пересечений', 'Vue + Python'],
+    description: 'DXF → оптимизация с поворотом → визуализация и Excel/PDF для цеха.',
+    bullets: ['Проверка пересечений', 'Отчёт для снабжения', 'Vue + Python'],
     tags: ['Vue', 'Flask', 'DXF'],
   },
 ]
 
-export const pipelineSteps = [
-  '2D / BIM',
-  '3D / CAD',
-  'Спецификация',
-  'Комплект',
-  'PDF',
-  'Производство',
+export const workSteps: WorkStep[] = [
+  {
+    title: '1. Разбор задачи',
+    description: 'Созвон или переписка: процесс, форматы, срок. Бесплатно. NDA — по запросу.',
+  },
+  {
+    title: '2. Прототип',
+    description: 'Ключевой сценарий в вашей среде CAD. Обычно 2–6 недель — зависит от объёма.',
+  },
+  {
+    title: '3. Внедрение',
+    description: 'Доработка, установка, инструкция. Исходники и сопровождение — по договорённости.',
+  },
 ]
 
 export const servicesIntro =
-  'Плагины и программы под ваш процесс выпуска чертежей и спецификаций. Если типового сценария нет — инструмент под нужды производства.'
+  'Заказная разработка под ваш регламент. DeskReview — отдельный продукт-демо; основной фокус — плагины и автоматизация CAD.'
 
 export const services: ServiceItem[] = [
   {
     title: 'Плагины для Autodesk Revit',
     description:
-      'Виды и листы A4…A0, шаблоны, ориентация проекций, цепочки размеров на виде. Под ваши семейства и альбом (C# / Revit API).',
+      'Виды и листы A4…A0, шаблоны, ориентация проекций, цепочки размеров. Под ваши семейства и альбом.',
   },
   {
     title: 'Автоматизация КОМПАС-3D',
     description:
-      'Спецификация под любой шаблон (массы, количества, разделы, итоги, связь с чертежом). Штампы, перечень, пакетный PDF/DWG/DXF (Python / COM).',
+      'Спецификация, штампы, альбом чертежей, пакетный PDF/DWG/DXF, типовые проекты из шаблона.',
   },
   {
     title: 'Плагины и макросы SolidWorks',
     description:
-      'Параметризация сборок, пакетные операции, add-in на SolidWorks API (C# / .NET).',
-  },
-  {
-    title: 'DeskReview — PDF и 3D в браузере',
-    description:
-      'Чертёж и модель без CAD: замечания со статусами, измерения, сечения, режим «Рядом», PDF-отчёт. STEP через WASM.',
+      'Параметризация сборок, пакетные операции, экспорт в производство. Add-in на SolidWorks API.',
   },
   {
     title: 'Раскрой и документооборот',
     description:
-      'Раскрой из DXF/спецификации, Excel/PDF, связка отделов. Заказной плагин под ваши правила.',
+      'Раскрой из DXF/спецификации, подготовка развёрток, Excel/PDF, связка отделов.',
   },
 ]
 
@@ -193,7 +218,7 @@ export const pricingTabs: PriceTab[] = [
       {
         label: 'Рабочий add-in под альбом',
         value: 'от 150 000 ₽',
-        note: 'Листы A4…A0, шаблоны, именование, ориентация; размеры — по ТЗ',
+        note: 'Листы A4…A0, шаблоны, именование, ориентация',
       },
       {
         label: 'Доработка / новая команда',
@@ -209,17 +234,17 @@ export const pricingTabs: PriceTab[] = [
       {
         label: 'Спецификация под ваш шаблон',
         value: 'от 100 000 ₽',
-        note: 'Массы, количества, разделы, итоговые значения по разделам, связь с чертежом',
+        note: 'Массы, разделы, итоги, связь с чертежом',
       },
       {
         label: 'Конвейер документации',
         value: 'от 180 000 ₽',
-        note: 'Пакетное обновление штампов, создание альбома чертежей (для строителей), пакетный экспорт PDF/DWG/DXF + работа со спецификацией (объединение, настройка фильтров, передача в другие отделы)',
+        note: 'Альбом, штампы, экспорт, спецификация',
       },
       {
         label: 'Утилита / скрипт под задачу',
         value: 'от 50 000 ₽',
-        note: 'Например пакетное сохранение версий, штампы',
+        note: 'Версии файлов, штампы, пакетные операции',
       },
     ],
   },
@@ -235,7 +260,7 @@ export const pricingTabs: PriceTab[] = [
       {
         label: 'Add-in под процесс предприятия',
         value: 'от 140 000 ₽',
-        note: 'SolidWorks API, C# / .NET, установка',
+        note: 'SolidWorks API, C# / .NET',
       },
       {
         label: 'Доработка макроса / add-in',
@@ -247,7 +272,7 @@ export const pricingTabs: PriceTab[] = [
 ]
 
 export const pricingNote =
-  'Цены ориентировочные. Точная смета — на бесплатной консультации. Исходники и сопровождение — по договорённости.'
+  'Цены ориентировочные. Точная смета — после разбора задачи. Исходники и сопровождение — по договорённости.'
 
 export const techStack = [
   'Revit API',
@@ -260,4 +285,13 @@ export const techStack = [
   'STEP / WASM',
   'PDF',
   'Excel / FRW',
+]
+
+export const platformOptions = [
+  { value: '', label: 'Не выбрано' },
+  { value: 'revit', label: 'Revit' },
+  { value: 'kompas', label: 'КОМПАС-3D' },
+  { value: 'solidworks', label: 'SolidWorks' },
+  { value: 'web', label: 'Web / раскрой / вьювер' },
+  { value: 'other', label: 'Другое' },
 ]

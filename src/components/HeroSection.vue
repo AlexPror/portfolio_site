@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { site, kpis } from '@/data/content'
+import { site, heroFacts } from '@/data/content'
 import { logger } from '@/lib/logger'
 import BlueprintBackground from '@/components/BlueprintBackground.vue'
 
@@ -134,17 +134,20 @@ onUnmounted(() => {
         <p class="eyebrow">CAD · BIM · Production</p>
         <h1>{{ site.tagline }}</h1>
         <p class="lead">{{ site.subtitle }}</p>
+        <p class="hero-trust">
+          {{ site.author }} · {{ site.experience }} · {{ site.location }}
+        </p>
         <div class="hero-actions">
+          <a href="#contact" class="btn btn-primary" @click="ctaContact">Оставить заявку</a>
           <a
-            class="btn btn-primary"
+            class="btn btn-ghost"
             :href="site.deskReviewUrl"
             target="_blank"
             rel="noopener"
             @click="ctaDemo"
           >
-            Открыть 3D вьювер
+            DeskReview — демо
           </a>
-          <a href="#contact" class="btn btn-ghost" @click="ctaContact">Оставить заявку</a>
         </div>
       </div>
       <div class="hero-visual" aria-hidden="true">
@@ -181,9 +184,10 @@ onUnmounted(() => {
       </div>
     </div>
     <div class="container kpi-row">
-      <div v-for="kpi in kpis" :key="kpi.label" class="kpi-card">
-        <div class="kpi-value">{{ kpi.value }}</div>
-        <div class="kpi-label">{{ kpi.label }}</div>
+      <div v-for="fact in heroFacts" :key="fact.label" class="kpi-card">
+        <div class="kpi-value">{{ fact.value }}</div>
+        <div class="kpi-label">{{ fact.label }}</div>
+        <p v-if="fact.note" class="kpi-note">{{ fact.note }}</p>
       </div>
     </div>
   </section>

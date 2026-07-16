@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import HeroSection from '@/components/HeroSection.vue'
 import AudienceSection from '@/components/AudienceSection.vue'
-import DeskReviewSection from '@/components/DeskReviewSection.vue'
 import ProjectsSection from '@/components/ProjectsSection.vue'
-import PipelineSection from '@/components/PipelineSection.vue'
+import WorkProcessSection from '@/components/WorkProcessSection.vue'
+import DeskReviewSection from '@/components/DeskReviewSection.vue'
 import ServicesSection from '@/components/ServicesSection.vue'
-import TechStackSection from '@/components/TechStackSection.vue'
 import ContactSection from '@/components/ContactSection.vue'
 </script>
 
@@ -13,11 +12,10 @@ import ContactSection from '@/components/ContactSection.vue'
   <div class="home">
     <HeroSection />
     <AudienceSection />
-    <DeskReviewSection />
     <ProjectsSection />
-    <PipelineSection />
+    <WorkProcessSection />
+    <DeskReviewSection />
     <ServicesSection />
-    <TechStackSection />
     <ContactSection />
   </div>
 </template>

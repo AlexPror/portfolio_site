@@ -1,14 +1,17 @@
 <script setup lang="ts">
-import { site } from '@/data/content'
+import { site, techStack } from '@/data/content'
 </script>
 
 <template>
   <footer class="site-footer">
     <div class="container footer-inner">
       <p class="footer-note">
-        Разработка ПО для инженерии и производства. Указанные проекты созданы для
-        промышленных заказчиков; бренды и данные объектов не публикуются.
+        {{ site.author }} — разработка ПО для инженерии и производства.
+        Проекты для промышленных заказчиков; бренды и данные объектов не публикуются.
       </p>
+      <div class="footer-stack" aria-label="Стек технологий">
+        <span v-for="t in techStack" :key="t" class="stack-chip">{{ t }}</span>
+      </div>
       <div class="footer-social">
         <a
           v-if="site.contact.telegram"
@@ -37,10 +40,26 @@ import { site } from '@/data/content'
 </template>
 
 <style scoped>
+.footer-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 1rem 0 0.5rem;
+}
+
+.footer-stack .stack-chip {
+  padding: 0.3rem 0.65rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
 .footer-social {
   display: flex;
   gap: 0.75rem;
-  margin: 1rem 0 0.5rem;
+  margin: 0.75rem 0 0.5rem;
 }
 
 .footer-icon {

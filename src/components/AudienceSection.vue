@@ -14,9 +14,10 @@ import { audiences } from '@/data/content'
           v-for="a in audiences"
           :key="a.title"
           class="audience-card"
-          href="#services"
+          href="#contact"
         >
-          {{ a.title }}
+          <span class="audience-title">{{ a.title }}</span>
+          <span class="audience-outcome">{{ a.outcome }}</span>
         </a>
       </div>
     </div>
@@ -49,30 +50,50 @@ import { audiences } from '@/data/content'
 
 @media (min-width: 900px) {
   .audience-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1100px) {
+  .audience-grid {
     grid-template-columns: repeat(5, 1fr);
   }
 }
 
 .audience-card {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   justify-content: center;
-  text-align: center;
-  min-height: 4.5rem;
-  padding: 1rem 0.85rem;
+  text-align: left;
+  min-height: 5.5rem;
+  padding: 1rem 1rem;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 12px;
   color: var(--text);
-  font-size: 1rem;
-  font-weight: 500;
-  line-height: 1.3;
   text-decoration: none;
-  transition: border-color 0.2s, color 0.2s;
+  transition: border-color 0.2s;
+  gap: 0.35rem;
 }
 
 .audience-card:hover {
   border-color: var(--accent);
+}
+
+.audience-title {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.audience-outcome {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+.audience-card:hover .audience-title {
   color: var(--accent);
 }
 </style>

@@ -14,10 +14,6 @@ function selectTab(id: string) {
   logger.info('pricing tab', { id })
 }
 
-function serviceClick(title: string) {
-  logger.info('service interest', { title })
-}
-
 function consultClick(where: string) {
   logger.info('consult cta', { where })
 }
@@ -33,17 +29,16 @@ function consultClick(where: string) {
       </div>
 
       <div class="service-grid">
-        <div
+        <a
           v-for="s in services"
           :key="s.title"
           class="service-card"
-          tabindex="0"
-          @click="serviceClick(s.title)"
-          @keydown.enter="serviceClick(s.title)"
+          href="#contact"
         >
           <h3>{{ s.title }}</h3>
           <p>{{ s.description }}</p>
-        </div>
+          <span class="service-link">Обсудить →</span>
+        </a>
       </div>
 
       <div class="pricing-block">
@@ -75,19 +70,15 @@ function consultClick(where: string) {
       <div class="consult-banner">
         <div class="consult-copy">
           <p class="consult-badge">Бесплатно</p>
-          <h3>Консультация по задаче</h3>
+          <h3>Разбор задачи и смета</h3>
           <p>
-            Разберём процесс и объём бесплатно, помогу с файловой архитектурой проектов.
-            После созвона — смета. Комплект автоматизации оцениваем со скидкой к разрозненным этапам.
+            Созвон или переписка: процесс, форматы, срок. Помогу с файловой архитектурой.
+            NDA — по запросу.
           </p>
         </div>
         <div class="consult-actions">
-          <a
-            href="#contact"
-            class="btn btn-primary"
-            @click="consultClick('contact')"
-          >
-            Получить бесплатную консультацию
+          <a href="#contact" class="btn btn-primary" @click="consultClick('contact')">
+            Оставить заявку
           </a>
           <a
             v-if="site.contact.telegram"
@@ -97,7 +88,7 @@ function consultClick(where: string) {
             rel="noopener noreferrer"
             @click="consultClick('telegram')"
           >
-            Написать в Telegram
+            Telegram
           </a>
         </div>
       </div>
@@ -113,6 +104,26 @@ function consultClick(where: string) {
 .pricing-heading {
   font-size: 1.25rem;
   margin-bottom: 1rem;
+}
+
+.service-card {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s;
+}
+
+.service-link {
+  margin-top: auto;
+  padding-top: 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--accent);
+}
+
+.service-card:hover .service-link {
+  color: #6cb8ff;
 }
 
 .consult-actions {
@@ -167,7 +178,6 @@ function consultClick(where: string) {
     overflow: visible;
   }
 }
-
 
 .price-tab:hover {
   color: var(--text);

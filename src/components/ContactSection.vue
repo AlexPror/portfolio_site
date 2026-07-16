@@ -1,14 +1,19 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { site } from '@/data/content'
+import { site, platformOptions } from '@/data/content'
 import { logger } from '@/lib/logger'
 
 const name = ref('')
 const email = ref('')
+const platform = ref('')
 const message = ref('')
 const sending = ref(false)
 const sent = ref(false)
 const error = ref('')
+
+function platformLabel(value: string) {
+  return platformOptions.find((o) => o.value === value)?.label ?? ''
+}
 
 async function submit() {
   error.value = ''
@@ -17,6 +22,7 @@ async function submit() {
   const text = message.value.trim()
   const fromName = name.value.trim()
   const fromEmail = email.value.trim()
+  const plat = platformLabel(platform.value)
 
   if (fromName.length < 2) {
     error.value = 'Укажите имя.'
@@ -33,7 +39,9 @@ async function submit() {
   }
 
   sending.value = true
-  logger.info('contact form submit', { length: text.length })
+  logger.info('contact form submit', { length: text.length, platform: platform.value })
+
+  const fullMessage = plat && plat !== 'Не выбрано' ? `Платформа: ${plat}\n\n${text}` : text
 
   try {
     if (site.web3formsKey) {
@@ -42,10 +50,10 @@ async function submit() {
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
           access_key: site.web3formsKey,
-          subject: 'Запрос с сайта CAD · BIM · Production',
+          subject: 'Заявка с сайта CAD · BIM · Production',
           name: fromName,
           email: fromEmail,
-          message: text,
+          message: fullMessage,
         }),
       })
       const data = (await res.json()) as { success?: boolean; message?: string }
@@ -53,15 +61,14 @@ async function submit() {
         throw new Error(data.message || 'Ошибка отправки')
       }
     } else {
-      // Без ключа: FormSubmit.co → письмо на site.contact.email (первый раз — подтверждение на почте)
       const res = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(site.contact.email)}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
           name: fromName,
           email: fromEmail,
-          message: text,
-          _subject: 'Запрос с сайта CAD · BIM · Production',
+          message: fullMessage,
+          _subject: 'Заявка с сайта CAD · BIM · Production',
         }),
       })
       if (!res.ok) {
@@ -73,11 +80,12 @@ async function submit() {
     message.value = ''
     name.value = ''
     email.value = ''
+    platform.value = ''
     logger.info('contact form sent ok')
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
     error.value =
-      'Не удалось отправить. Напишите в Telegram или на email — или проверьте настройки формы в README.'
+      'Не удалось отправить. Напишите в Telegram или на email.'
     logger.error('contact form failed', { msg })
   } finally {
     sending.value = false
@@ -93,8 +101,8 @@ async function submit() {
           <p class="eyebrow">Контакт</p>
           <h2>Оставить заявку</h2>
           <p class="section-lead">
-            Платформа (Revit / КОМПАС / web), формат данных, срок. При необходимости
-            подпишем соглашение о неразглашении.
+            {{ site.author }} · {{ site.location }}. Опишите задачу: платформа, формат данных,
+            срок. NDA — по запросу.
           </p>
         </div>
         <div class="social-row">
@@ -138,7 +146,14 @@ async function submit() {
           placeholder="you@company.ru"
         />
 
-        <label for="msg">Сообщение</label>
+        <label for="contact-platform">Платформа</label>
+        <select id="contact-platform" v-model="platform" class="contact-select">
+          <option v-for="opt in platformOptions" :key="opt.value" :value="opt.value">
+            {{ opt.label }}
+          </option>
+        </select>
+
+        <label for="msg">Задача</label>
         <textarea
           id="msg"
           v-model="message"
@@ -146,9 +161,9 @@ async function submit() {
           placeholder="Нужен add-in Revit для… / автоматизация spec в КОМПАС…"
         />
         <p v-if="error" class="form-error">{{ error }}</p>
-        <p v-if="sent" class="form-ok">Сообщение отправлено. Отвечу на указанный email.</p>
+        <p v-if="sent" class="form-ok">Заявка отправлена. Отвечу на указанный email.</p>
         <button type="submit" class="btn btn-primary" :disabled="sending">
-          {{ sending ? 'Отправка…' : 'Отправить' }}
+          {{ sending ? 'Отправка…' : 'Отправить заявку' }}
         </button>
       </form>
     </div>
@@ -189,7 +204,8 @@ async function submit() {
   color: var(--accent);
 }
 
-.contact-form input {
+.contact-form input,
+.contact-select {
   padding: 0.7rem 0.85rem;
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -200,7 +216,13 @@ async function submit() {
   margin-bottom: 0.35rem;
 }
 
-.contact-form input:focus {
+.contact-select {
+  width: 100%;
+  cursor: pointer;
+}
+
+.contact-form input:focus,
+.contact-select:focus {
   outline: none;
   border-color: var(--accent);
 }

@@ -172,6 +172,13 @@ p {
   max-width: 560px;
 }
 
+.hero-trust {
+  margin: 0.5rem 0 0;
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  opacity: 0.9;
+}
+
 /* Header */
 .site-header {
   position: sticky;
@@ -251,24 +258,6 @@ p {
 @media (min-width: 900px) {
   .header-cta {
     margin-left: 0;
-  }
-}
-
-.header-cta .cta-short {
-  display: inline;
-}
-
-.header-cta .cta-full {
-  display: none;
-}
-
-@media (min-width: 400px) {
-  .header-cta .cta-short {
-    display: none;
-  }
-
-  .header-cta .cta-full {
-    display: inline;
   }
 }
 
@@ -569,18 +558,25 @@ p {
   margin-top: 0.25rem;
 }
 
+.kpi-note {
+  margin: 0.2rem 0 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  opacity: 0.75;
+}
+
 /* DeskReview */
 .deskreview-section {
   background: var(--bg-elevated);
   border-block: 1px solid var(--border);
 }
 
-.deskreview-section > .container > .btn {
+.deskreview-section .deskreview-actions .btn-primary {
   width: 100%;
 }
 
 @media (min-width: 480px) {
-  .deskreview-section > .container > .btn {
+  .deskreview-section .deskreview-actions .btn {
     width: auto;
   }
 }
@@ -872,13 +868,10 @@ p {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 12px;
-  cursor: pointer;
 }
 
-.service-card:hover,
-.service-card:focus {
-  outline: none;
-  border-color: var(--accent);
+.service-card:hover {
+  border-color: var(--accent-dim);
 }
 
 .service-card p {
@@ -968,10 +961,16 @@ p {
 }
 
 .contact-form textarea,
-.contact-form input {
+.contact-form input,
+.contact-form select {
   width: 100%;
   max-width: 100%;
   min-height: 44px;
+}
+
+.contact-form select {
+  cursor: pointer;
+  margin-bottom: 0.35rem;
 }
 
 .contact-form textarea {

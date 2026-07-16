@@ -48,21 +48,15 @@ onUnmounted(() => {
 
       <nav class="nav nav-desktop" aria-label="Основная навигация">
         <a href="#audience" @click="navClick('audience')">Аудитория</a>
-        <a href="#deskreview" @click="navClick('deskreview')">DeskReview</a>
         <a href="#projects" @click="navClick('projects')">Примеры</a>
+        <a href="#process" @click="navClick('process')">Процесс</a>
+        <a href="#deskreview" @click="navClick('deskreview')">DeskReview</a>
         <a href="#services" @click="navClick('services')">Услуги</a>
         <a href="#contact" @click="navClick('contact')">Контакт</a>
       </nav>
 
-      <a
-        class="btn btn-primary btn-sm header-cta"
-        :href="site.deskReviewUrl"
-        target="_blank"
-        rel="noopener"
-        @click="navClick('viewer')"
-      >
-        <span class="cta-full">3D вьювер</span>
-        <span class="cta-short" aria-hidden="true">3D</span>
+      <a href="#contact" class="btn btn-primary btn-sm header-cta" @click="navClick('contact')">
+        Заявка
       </a>
 
       <button
@@ -94,18 +88,13 @@ onUnmounted(() => {
       :aria-hidden="!menuOpen"
     >
       <a href="#audience" @click="navClick('audience')">Аудитория</a>
-      <a href="#deskreview" @click="navClick('deskreview')">DeskReview</a>
       <a href="#projects" @click="navClick('projects')">Примеры</a>
+      <a href="#process" @click="navClick('process')">Процесс</a>
+      <a href="#deskreview" @click="navClick('deskreview')">DeskReview</a>
       <a href="#services" @click="navClick('services')">Услуги</a>
       <a href="#contact" @click="navClick('contact')">Контакт</a>
-      <a
-        class="btn btn-primary nav-mobile-cta"
-        :href="site.deskReviewUrl"
-        target="_blank"
-        rel="noopener"
-        @click="navClick('viewer')"
-      >
-        Открыть 3D вьювер
+      <a href="#contact" class="btn btn-primary nav-mobile-cta" @click="navClick('contact')">
+        Оставить заявку
       </a>
     </nav>
   </header>
