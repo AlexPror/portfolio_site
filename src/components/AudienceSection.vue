@@ -56,7 +56,7 @@ import { audiences } from '@/data/content'
 
 @media (min-width: 1100px) {
   .audience-grid {
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 

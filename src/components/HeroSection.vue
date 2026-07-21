@@ -184,9 +184,9 @@ onUnmounted(() => {
       </div>
     </div>
     <div class="container kpi-row">
-      <div v-for="fact in heroFacts" :key="fact.label" class="kpi-card">
-        <div class="kpi-value">{{ fact.value }}</div>
-        <div class="kpi-label">{{ fact.label }}</div>
+      <div v-for="(fact, i) in heroFacts" :key="`${i}-${fact.value}-${fact.label}`" class="kpi-card">
+        <div v-if="fact.value" class="kpi-value">{{ fact.value }}</div>
+        <div v-if="fact.label" class="kpi-label">{{ fact.label }}</div>
         <p v-if="fact.note" class="kpi-note">{{ fact.note }}</p>
       </div>
     </div>
