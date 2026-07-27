@@ -25,6 +25,15 @@ function similarTask(id: string) {
           <ul>
             <li v-for="b in p.bullets" :key="b">{{ b }}</li>
           </ul>
+          <details class="project-details">
+            <summary>Кейс: проблема → подход → ограничения → результат</summary>
+            <div class="project-flow">
+              <p><strong>Проблема:</strong> {{ p.caseStudy.problem }}</p>
+              <p><strong>Подход:</strong> {{ p.caseStudy.approach }}</p>
+              <p><strong>Ограничения:</strong> {{ p.caseStudy.constraints }}</p>
+              <p><strong>Результат:</strong> {{ p.caseStudy.result }}</p>
+            </div>
+          </details>
           <div class="tag-row">
             <span v-for="t in p.tags" :key="t" class="tag">{{ t }}</span>
           </div>
@@ -46,5 +55,54 @@ function similarTask(id: string) {
 
 .project-cta:hover {
   color: #6cb8ff;
+}
+
+.project-details {
+  margin-top: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.project-details summary {
+  cursor: pointer;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.9rem;
+  color: var(--accent);
+  list-style: none;
+}
+
+.project-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.project-details summary::before {
+  content: '▸';
+  display: inline-block;
+  margin-right: 0.45rem;
+  transition: transform 0.15s ease;
+}
+
+.project-details[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.project-flow {
+  padding: 0.2rem 0.85rem 0.8rem;
+  border-top: 1px solid var(--border);
+}
+
+.project-flow p {
+  margin: 0.55rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.project-flow p:first-child {
+  margin-top: 0;
+}
+
+.project-flow strong {
+  color: var(--text);
 }
 </style>

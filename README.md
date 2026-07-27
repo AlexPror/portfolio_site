@@ -7,6 +7,8 @@
 **Сайт:** https://alexpror.github.io/portfolio_site/  
 **Релиз:** [v1.0.0](https://github.com/AlexPror/portfolio_site/releases/tag/v1.0.0)
 
+На лендинге: услуги и цены, процесс работы, DeskReview-демо и 6 проектных кейсов в формате «проблема → подход → ограничения → результат».
+
 ## Запуск
 
 ```bat
