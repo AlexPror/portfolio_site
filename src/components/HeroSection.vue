@@ -102,10 +102,10 @@ function onPointerLeave() {
 }
 
 function ctaDemo() {
-  logger.info('hero cta demo')
+  logger.debug('hero cta demo')
 }
 function ctaContact() {
-  logger.info('hero cta contact')
+  logger.debug('hero cta contact')
 }
 
 onMounted(() => {

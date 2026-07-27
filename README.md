@@ -7,7 +7,9 @@
 **Сайт:** https://alexpror.github.io/portfolio_site/  
 **Релиз:** [v1.0.0](https://github.com/AlexPror/portfolio_site/releases/tag/v1.0.0)
 
-На лендинге: услуги и цены, процесс работы, DeskReview-демо и 6 проектных кейсов в формате «проблема → подход → ограничения → результат».
+На лендинге: услуги и цены, процесс работы, DeskReview-демо и 6 проектных кейсов в формате «проблема → подход → ограничения → результат» (плавное раскрытие).
+
+Старый путь `/app` редиректит на секцию DeskReview на главной.
 
 ## Запуск
 
@@ -43,7 +45,7 @@ http://localhost:5180
 - `public/og.jpg` — превью для соцсетей и README
 - GitHub Social preview: **Settings → General → Social preview** → загрузить `.github/social-preview.jpg` (тот же кадр)
 - `robots.txt` + `sitemap.xml`
-- Заголовки и description по маршрутам (`/` и `/app`)
+- Заголовки и description по маршрутам (`/`)
 
 ## Сборка
 

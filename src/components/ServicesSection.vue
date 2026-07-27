@@ -11,11 +11,11 @@ const activePrices = computed(
 
 function selectTab(id: string) {
   activeTab.value = id
-  logger.info('pricing tab', { id })
+  logger.debug('pricing tab', { id })
 }
 
 function consultClick(where: string) {
-  logger.info('consult cta', { where })
+  logger.debug('consult cta', { where })
 }
 </script>
 
@@ -73,7 +73,6 @@ function consultClick(where: string) {
           <h3>Разбор задачи и смета</h3>
           <p>
             Созвон или переписка: процесс, форматы, срок. Помогу с файловой архитектурой.
-            Конфиденциальность — по запросу. Исходники ядра не передаю; при необходимости — отдельные части.
           </p>
         </div>
         <div class="consult-actions">

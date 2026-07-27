@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router'
 import HomePage from '@/pages/HomePage.vue'
-import DeskReviewPage from '@/pages/DeskReviewPage.vue'
 import { logger } from '@/lib/logger'
 
 const SITE_ORIGIN = 'https://alexpror.github.io/portfolio_site'
@@ -20,13 +19,7 @@ const router = createRouter({
     },
     {
       path: '/app',
-      name: 'deskreview',
-      component: DeskReviewPage,
-      meta: {
-        title: 'DeskReview 1.0 — PDF и 3D в браузере | CAD · BIM · Production',
-        description:
-          'DeskReview 1.0: ревью чертежей и моделей в браузере без CAD. PDF, STEP, STL, IGES, GLB — замечания, измерения, сечения, отчёт.',
-      },
+      redirect: { path: '/', hash: '#deskreview' },
     },
   ],
   scrollBehavior(to) {
@@ -63,7 +56,7 @@ function applySeo(to: RouteLocationNormalized) {
 
 router.afterEach((to) => {
   applySeo(to)
-  logger.info('route', { path: to.fullPath, name: String(to.name ?? '') })
+  logger.debug('route', { path: to.fullPath, name: String(to.name ?? '') })
 })
 
 export default router

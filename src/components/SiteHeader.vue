@@ -47,7 +47,7 @@ onUnmounted(() => {
       </RouterLink>
 
       <nav class="nav nav-desktop" aria-label="Основная навигация">
-        <a href="#audience" @click="navClick('audience')">Аудитория</a>
+        <a href="#audience" @click="navClick('audience')">Кому подходит</a>
         <a href="#projects" @click="navClick('projects')">Примеры</a>
         <a href="#process" @click="navClick('process')">Процесс</a>
         <a href="#deskreview" @click="navClick('deskreview')">DeskReview</a>
@@ -87,7 +87,7 @@ onUnmounted(() => {
       aria-label="Мобильная навигация"
       :aria-hidden="!menuOpen"
     >
-      <a href="#audience" @click="navClick('audience')">Аудитория</a>
+      <a href="#audience" @click="navClick('audience')">Кому подходит</a>
       <a href="#projects" @click="navClick('projects')">Примеры</a>
       <a href="#process" @click="navClick('process')">Процесс</a>
       <a href="#deskreview" @click="navClick('deskreview')">DeskReview</a>

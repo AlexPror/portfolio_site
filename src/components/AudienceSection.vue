@@ -6,7 +6,7 @@ import { audiences } from '@/data/content'
   <section id="audience" class="section audience-section">
     <div class="container">
       <div class="section-head center">
-        <p class="eyebrow">Аудитория</p>
+        <p class="eyebrow">Кому подходит</p>
         <h2>Кому будет полезно</h2>
       </div>
       <div class="audience-grid">

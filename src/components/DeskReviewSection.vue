@@ -3,7 +3,7 @@ import { site } from '@/data/content'
 import { logger } from '@/lib/logger'
 
 function openDemo() {
-  logger.info('deskreview section cta', { url: site.deskReviewUrl })
+  logger.debug('deskreview section cta', { url: site.deskReviewUrl })
 }
 </script>
 

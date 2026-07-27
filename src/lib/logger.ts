@@ -101,15 +101,6 @@ export function installGlobalErrorHandlers(): void {
     })
   })
 
-  logger.info('app started', { viewport: `${window.innerWidth}x${window.innerHeight}` })
+  logger.debug('app started', { viewport: `${window.innerWidth}x${window.innerHeight}` })
 }
 
-export function getLogBuffer(): LogEntry[] {
-  if (!isDev) return []
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) : []
-  } catch {
-    return []
-  }
-}
