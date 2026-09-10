@@ -368,21 +368,20 @@ const cssVars = computed(() => {
 .project-grid {
   display: grid;
   gap: 1.25rem;
+  grid-template-columns: 1fr;
+}
+
+/* Override global .project-grid 2-col from main.css */
+@media (min-width: 700px) {
+  .project-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .project-grid.count-1 {
-  max-width: 640px;
+  max-width: 720px;
   margin-inline: auto;
-}
-
-@media (min-width: 720px) {
-  .project-grid.count-2 {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .project-grid.count-3 {
-    grid-template-columns: repeat(3, 1fr);
-  }
+  width: 100%;
 }
 
 .project-card {
@@ -516,10 +515,6 @@ const cssVars = computed(() => {
 
 .project-details.open .project-flow-wrap {
   grid-template-rows: 1fr;
-}
-
-.project-card:has(.project-details.open) {
-  grid-column: 1 / -1;
 }
 
 .project-flow {
