@@ -414,9 +414,14 @@ function downloadPdf() {
   color: var(--text-muted);
 }
 
-.skills-h,
-.links-h {
+.skills-h {
   margin-top: 1.75rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.15rem;
+}
+
+.links-h {
+  margin-top: 3.25rem;
   margin-bottom: 0.75rem;
   font-size: 1.15rem;
 }
