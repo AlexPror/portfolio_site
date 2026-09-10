@@ -518,6 +518,10 @@ const cssVars = computed(() => {
   grid-template-rows: 1fr;
 }
 
+.project-card:has(.project-details.open) {
+  grid-column: 1 / -1;
+}
+
 .project-flow {
   min-height: 0;
   overflow: hidden;
@@ -534,17 +538,24 @@ const cssVars = computed(() => {
   padding: 0.75rem 0.85rem 0.9rem;
   border-top-color: var(--border);
   opacity: 1;
+  overflow: visible;
 }
 
 .mini-flow {
   display: grid;
   gap: 0.85rem;
+  grid-template-columns: 1fr;
 }
 
-@media (min-width: 640px) {
+@media (min-width: 720px) {
   .mini-flow {
-    grid-template-columns: 1fr 1fr;
-    gap: 0.85rem;
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .mini-flow {
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 
@@ -554,6 +565,7 @@ const cssVars = computed(() => {
   border: 1px solid var(--border);
   border-radius: 8px;
   text-align: left;
+  min-width: 0;
 }
 
 .mini-flow span {
