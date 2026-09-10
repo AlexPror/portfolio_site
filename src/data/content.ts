@@ -73,11 +73,16 @@ export const audiences: AudienceItem[] = [
 
 /** Проверяемые факты вместо абстрактных KPI */
 export const heroFacts: KpiItem[] = [
-  { value: 'Revit / AutoCAD', label: 'плагины', note: 'версии любые' },
+  {
+    value: 'Revit / AutoCAD',
+    label: 'плагины',
+    note: 'Revit API · C# / .NET · WPF',
+  },
   { value: '2–6 нед.', label: 'прототип по ТЗ', note: 'ориентир' },
   {
-    value: 'КОМПАС-3D / SolidWorks',
-    label: 'десктопные приложения, веб приложения, макросы',
+    value: 'КОМПАС / SolidWorks',
+    label: 'API, десктоп и веб',
+    note: 'SolidWorks API · JS / TS · Three.js / WebGL',
   },
 ]
 
@@ -345,9 +350,11 @@ export const techStack = [
   'SolidWorks API',
   'КОМПАС COM',
   'C# / .NET',
+  'WPF',
   'Python',
+  'JavaScript / TypeScript',
   'Vue',
-  'Three.js',
+  'Three.js / WebGL',
   'STEP / WASM',
   'PDF',
   'Excel / FRW',

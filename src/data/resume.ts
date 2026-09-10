@@ -166,6 +166,11 @@ export const resume = {
     'Листовой металл',
     'Python',
     'C# / .NET',
+    'WPF',
+    'Revit API',
+    'SolidWorks API',
+    'JavaScript / TypeScript',
+    'Three.js / WebGL',
     'VBA',
   ],
   links: [
