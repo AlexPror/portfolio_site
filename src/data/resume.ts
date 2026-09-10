@@ -39,6 +39,11 @@ export const resume = {
     'Инженер-проектировщик',
     'Реверс-инжиниринг',
     'КД по ЕСКД',
+    'Revit API',
+    'SolidWorks API',
+    'WPF',
+    'JavaScript / TypeScript',
+    'Three.js / WebGL',
   ],
   highlights: [
     { value: '6+ лет', label: 'в конструкторской работе' },
