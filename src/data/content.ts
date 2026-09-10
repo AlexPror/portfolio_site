@@ -352,6 +352,8 @@ export const techStack = [
   'C# / .NET',
   'WPF',
   'Python',
+  'PyQt5',
+  'VBA',
   'JavaScript / TypeScript',
   'Vue',
   'Three.js / WebGL',
