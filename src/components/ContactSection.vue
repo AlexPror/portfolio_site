@@ -1,96 +1,14 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { site, platformOptions } from '@/data/content'
-import { logger } from '@/lib/logger'
+import { site } from '@/data/content'
+import ContactForm from '@/components/ContactForm.vue'
 
-const name = ref('')
-const email = ref('')
-const platform = ref('')
-const message = ref('')
-const sending = ref(false)
-const sent = ref(false)
-const error = ref('')
-
-function platformLabel(value: string) {
-  return platformOptions.find((o) => o.value === value)?.label ?? ''
-}
-
-async function submit() {
-  error.value = ''
-  sent.value = false
-
-  const text = message.value.trim()
-  const fromName = name.value.trim()
-  const fromEmail = email.value.trim()
-  const plat = platformLabel(platform.value)
-
-  if (fromName.length < 2) {
-    error.value = 'Укажите имя.'
-    return
-  }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fromEmail)) {
-    error.value = 'Укажите корректный email.'
-    return
-  }
-  if (text.length < 10) {
-    error.value = 'Опишите задачу хотя бы в нескольких предложениях.'
-    logger.warn('contact validation failed', { length: text.length })
-    return
-  }
-
-  sending.value = true
-  logger.info('contact form submit', { length: text.length, platform: platform.value })
-
-  const fullMessage = plat && plat !== 'Не выбрано' ? `Платформа: ${plat}\n\n${text}` : text
-
-  try {
-    if (site.web3formsKey) {
-      const res = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({
-          access_key: site.web3formsKey,
-          subject: 'Заявка с сайта CAD · BIM · Production',
-          name: fromName,
-          email: fromEmail,
-          message: fullMessage,
-        }),
-      })
-      const data = (await res.json()) as { success?: boolean; message?: string }
-      if (!res.ok || !data.success) {
-        throw new Error(data.message || 'Ошибка отправки')
-      }
-    } else {
-      const res = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(site.contact.email)}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({
-          name: fromName,
-          email: fromEmail,
-          message: fullMessage,
-          _subject: 'Заявка с сайта CAD · BIM · Production',
-        }),
-      })
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`)
-      }
-    }
-
-    sent.value = true
-    message.value = ''
-    name.value = ''
-    email.value = ''
-    platform.value = ''
-    logger.info('contact form sent ok')
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e)
-    error.value =
-      'Не удалось отправить. Напишите в Telegram или на email.'
-    logger.error('contact form failed', { msg })
-  } finally {
-    sending.value = false
-  }
-}
+defineProps<{
+  initialPlatform?: string
+  hidePlatformSelect?: boolean
+  heading?: string
+  lead?: string
+  idPrefix?: string
+}>()
 </script>
 
 <template>
@@ -99,10 +17,14 @@ async function submit() {
       <div>
         <div class="section-head">
           <p class="eyebrow">Контакт</p>
-          <h2>Оставить заявку</h2>
+          <h2>{{ heading || 'Оставить заявку' }}</h2>
           <p class="section-lead">
-            {{ site.author }} · {{ site.location }}. Опишите задачу: платформа, формат данных,
-            срок. Конфиденциальность — по запросу. Исходники ядра не передаю; при необходимости — отдельные части.
+            <slot name="lead">
+              {{
+                lead ||
+                `${site.author} · ${site.location}. Опишите задачу: платформа, формат данных, срок. Конфиденциальность — по запросу. Исходники ядра не передаю; при необходимости — отдельные части.`
+              }}
+            </slot>
           </p>
         </div>
         <div class="social-row">
@@ -133,39 +55,11 @@ async function submit() {
           <a :href="`mailto:${site.contact.email}`">{{ site.contact.email }}</a>
         </p>
       </div>
-      <form class="contact-form" @submit.prevent="submit">
-        <label for="contact-name">Имя</label>
-        <input id="contact-name" v-model="name" type="text" autocomplete="name" placeholder="Иван" />
-
-        <label for="contact-email">Email</label>
-        <input
-          id="contact-email"
-          v-model="email"
-          type="email"
-          autocomplete="email"
-          placeholder="you@company.ru"
-        />
-
-        <label for="contact-platform">Платформа</label>
-        <select id="contact-platform" v-model="platform" class="contact-select">
-          <option v-for="opt in platformOptions" :key="opt.value" :value="opt.value">
-            {{ opt.label }}
-          </option>
-        </select>
-
-        <label for="msg">Задача</label>
-        <textarea
-          id="msg"
-          v-model="message"
-          rows="5"
-          placeholder="Нужен add-in Revit для… / автоматизация spec в КОМПАС…"
-        />
-        <p v-if="error" class="form-error">{{ error }}</p>
-        <p v-if="sent" class="form-ok">Заявка отправлена. Отвечу на указанный email.</p>
-        <button type="submit" class="btn btn-primary" :disabled="sending">
-          {{ sending ? 'Отправка…' : 'Отправить заявку' }}
-        </button>
-      </form>
+      <ContactForm
+        :initial-platform="initialPlatform"
+        :hide-platform-select="hidePlatformSelect"
+        :id-prefix="idPrefix || 'contact'"
+      />
     </div>
   </section>
 </template>
@@ -202,33 +96,5 @@ async function submit() {
 .social-btn:hover {
   border-color: var(--accent);
   color: var(--accent);
-}
-
-.contact-form input,
-.contact-select {
-  padding: 0.7rem 0.85rem;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  color: var(--text);
-  font-family: var(--font-sans);
-  font-size: 1.05rem;
-  margin-bottom: 0.35rem;
-}
-
-.contact-select {
-  width: 100%;
-  cursor: pointer;
-}
-
-.contact-form input:focus,
-.contact-select:focus {
-  outline: none;
-  border-color: var(--accent);
-}
-
-.contact-form button:disabled {
-  opacity: 0.6;
-  cursor: wait;
 }
 </style>

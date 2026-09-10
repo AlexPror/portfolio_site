@@ -1,15 +1,23 @@
 # Portfolio site
 
-Лендинг: разработка ПО для CAD, BIM и производства.
+Лендинг: разработка ПО для CAD, BIM и производства + резюме конструктора.
 
 [![CAD · BIM · Production](./public/og.jpg)](https://alexpror.github.io/portfolio_site/)
 
 **Сайт:** https://alexpror.github.io/portfolio_site/  
 **Релиз:** [v1.0.0](https://github.com/AlexPror/portfolio_site/releases/tag/v1.0.0)
 
-На лендинге: услуги и цены, процесс работы, DeskReview-демо и 6 проектных кейсов в формате «проблема → подход → ограничения → результат» (плавное раскрытие).
+## Страницы
 
-Старый путь `/app` редиректит на секцию DeskReview на главной.
+| Путь | Содержание |
+|------|------------|
+| `/` | Главная: выбор платформы, как работаем, DeskReview, заявка |
+| `/kompas` | Кейсы и форма по КОМПАС-3D |
+| `/revit` | Кейсы Revit (листы КМД) и форма |
+| `/solidworks` | Кейсы SolidWorks (пакет в цех) и форма |
+| `/resume` | Резюме (HH-стиль), печать / PDF |
+
+Старый `/app` → редирект на `/#deskreview`.
 
 ## Запуск
 
@@ -17,43 +25,46 @@
 run.bat
 ```
 
-http://localhost:5180
+Откроется Vite на порту **5180**. Важный URL (с `base`):
 
-## Настройка `.env`
+**http://localhost:5180/portfolio_site/**
 
-Скопируйте `.env.example` → `.env` (файл в `.gitignore`):
+Без `/portfolio_site/` страница часто пустая — так задумано под GitHub Pages.
 
-| Переменная | Зачем |
-|------------|--------|
-| `VITE_TELEGRAM_URL` | Telegram (уже есть default в коде) |
-| `VITE_DESKREVIEW_URL` | Ссылка на DeskReview (по умолчанию [демо на Pages](https://alexpror.github.io/3d_viewer_1.0/)) |
-| `VITE_WEB3FORMS_KEY` | Форма → почта ([web3forms.com](https://web3forms.com), включите captcha в кабинете) |
-
-Без Web3Forms используется FormSubmit — подтвердите активацию письма с почты.
-
-## GitHub Pages
-
-После пуша в `main` Actions собирает сайт и деплоит на Pages.
-
-Один раз: **Settings → Pages → Source: GitHub Actions**.
-
-`base` в Vite: `/portfolio_site/` (имя репозитория). При смене имени репо обновите `vite.config.ts`, `robots.txt`, `sitemap.xml` и `index.html`.
-
-## SEO
-
-- `index.html`: description, Open Graph, Twitter Card, JSON-LD (WebSite / Person / ProfessionalService)
-- `public/og.jpg` — превью для соцсетей и README
-- GitHub Social preview: **Settings → General → Social preview** → загрузить `.github/social-preview.jpg` (тот же кадр)
-- `robots.txt` + `sitemap.xml`
-- Заголовки и description по маршрутам (`/`)
-
-## Сборка
+Сборка:
 
 ```bat
 build.bat
 ```
 
-Клиентские логи на сервер — только в `npm run dev` / preview, не в production.
+Превью production: `npm run preview` → http://localhost:4180/portfolio_site/
+
+## Настройка `.env`
+
+Скопируйте `.env.example` → `.env` (в `.gitignore`):
+
+| Переменная | Зачем |
+|------------|--------|
+| `VITE_TELEGRAM_URL` | Telegram (есть default в коде) |
+| `VITE_DESKREVIEW_URL` | Ссылка на DeskReview (по умолчанию [демо](https://alexpror.github.io/3d_viewer_1.0/)) |
+| `VITE_WEB3FORMS_KEY` | Форма → почта ([web3forms.com](https://web3forms.com)) |
+
+Без Web3Forms — FormSubmit (нужно подтвердить письмо с почты).
+
+## GitHub Pages
+
+Пуш в `main` → Actions собирает и деплоит.
+
+Один раз: **Settings → Pages → Source: GitHub Actions**.
+
+`base` в Vite: `/portfolio_site/`. При смене имени репо обновите `vite.config.ts`, `robots.txt`, `sitemap.xml`, `index.html`.
+
+## SEO
+
+- OG / Twitter / JSON-LD в `index.html`
+- `public/og.jpg`, `.github/social-preview.jpg`
+- `robots.txt` + `sitemap.xml` (главная, платформы, резюме)
+- Title/description по маршрутам
 
 ## Стек
 

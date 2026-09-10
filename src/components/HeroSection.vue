@@ -101,9 +101,6 @@ function onPointerLeave() {
   ty = 0
 }
 
-function ctaDemo() {
-  logger.debug('hero cta demo')
-}
 function ctaContact() {
   logger.debug('hero cta contact')
 }
@@ -138,16 +135,8 @@ onUnmounted(() => {
           {{ site.author }} · {{ site.experience }} · {{ site.location }}
         </p>
         <div class="hero-actions">
-          <a href="#contact" class="btn btn-primary" @click="ctaContact">Оставить заявку</a>
-          <a
-            class="btn btn-ghost"
-            :href="site.deskReviewUrl"
-            target="_blank"
-            rel="noopener"
-            @click="ctaDemo"
-          >
-            DeskReview — демо
-          </a>
+          <a href="#platforms" class="btn btn-primary" @click="ctaContact">Выбрать платформу</a>
+          <a href="#contact" class="btn btn-ghost" @click="ctaContact">Оставить заявку</a>
         </div>
       </div>
       <div class="hero-visual" aria-hidden="true">

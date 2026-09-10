@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { site } from '@/data/content'
+import { platforms } from '@/data/platforms'
 import { logger } from '@/lib/logger'
 
+const route = useRoute()
 const menuOpen = ref(false)
+const isHome = computed(() => route.name === 'home')
 
 function navClick(label: string) {
   logger.debug('nav click', { label })
@@ -21,6 +25,11 @@ function onKeydown(e: KeyboardEvent) {
 
 function onResize() {
   if (window.innerWidth >= 900) menuOpen.value = false
+}
+
+function hashHref(hash: string) {
+  if (isHome.value) return hash
+  return `${import.meta.env.BASE_URL}${hash.replace(/^\//, '')}`
 }
 
 watch(menuOpen, (open) => {
@@ -47,15 +56,20 @@ onUnmounted(() => {
       </RouterLink>
 
       <nav class="nav nav-desktop" aria-label="Основная навигация">
-        <a href="#audience" @click="navClick('audience')">Кому подходит</a>
-        <a href="#projects" @click="navClick('projects')">Примеры</a>
-        <a href="#process" @click="navClick('process')">Процесс</a>
-        <a href="#deskreview" @click="navClick('deskreview')">DeskReview</a>
-        <a href="#services" @click="navClick('services')">Услуги</a>
-        <a href="#contact" @click="navClick('contact')">Контакт</a>
+        <RouterLink
+          v-for="p in platforms"
+          :key="p.id"
+          :to="`/${p.slug}`"
+          @click="navClick(p.slug)"
+        >
+          {{ p.navLabel }}
+        </RouterLink>
+        <a :href="hashHref('#process')" @click="navClick('process')">Как работаем</a>
+        <a :href="hashHref('#contact')" @click="navClick('contact')">Контакт</a>
+        <RouterLink to="/resume" @click="navClick('resume')">Резюме</RouterLink>
       </nav>
 
-      <a href="#contact" class="btn btn-primary btn-sm header-cta" @click="navClick('contact')">
+      <a :href="hashHref('#contact')" class="btn btn-primary btn-sm header-cta" @click="navClick('cta')">
         Заявка
       </a>
 
@@ -87,13 +101,18 @@ onUnmounted(() => {
       aria-label="Мобильная навигация"
       :aria-hidden="!menuOpen"
     >
-      <a href="#audience" @click="navClick('audience')">Кому подходит</a>
-      <a href="#projects" @click="navClick('projects')">Примеры</a>
-      <a href="#process" @click="navClick('process')">Процесс</a>
-      <a href="#deskreview" @click="navClick('deskreview')">DeskReview</a>
-      <a href="#services" @click="navClick('services')">Услуги</a>
-      <a href="#contact" @click="navClick('contact')">Контакт</a>
-      <a href="#contact" class="btn btn-primary nav-mobile-cta" @click="navClick('contact')">
+      <RouterLink
+        v-for="p in platforms"
+        :key="p.id"
+        :to="`/${p.slug}`"
+        @click="navClick(p.slug)"
+      >
+        {{ p.navLabel }}
+      </RouterLink>
+      <a :href="hashHref('#process')" @click="navClick('process')">Как работаем</a>
+      <a :href="hashHref('#deskreview')" @click="navClick('deskreview')">DeskReview</a>
+      <RouterLink to="/resume" @click="navClick('resume')">Резюме</RouterLink>
+      <a :href="hashHref('#contact')" class="btn btn-primary nav-mobile-cta" @click="navClick('contact')">
         Оставить заявку
       </a>
     </nav>

@@ -1,6 +1,9 @@
 import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router'
 import HomePage from '@/pages/HomePage.vue'
+import PlatformPage from '@/pages/PlatformPage.vue'
+import ResumePage from '@/pages/ResumePage.vue'
 import { logger } from '@/lib/logger'
+import { getPlatform } from '@/data/platforms'
 
 const SITE_ORIGIN = 'https://alexpror.github.io/portfolio_site'
 
@@ -14,7 +17,22 @@ const router = createRouter({
       meta: {
         title: 'CAD · BIM · Production — плагины Revit, КОМПАС, SolidWorks',
         description:
-          'Разработка ПО для CAD, BIM и производства: плагины Revit, КОМПАС-3D и SolidWorks, спецификации, выпуск чертежей, DeskReview — PDF и 3D в браузере.',
+          'Разработка ПО для CAD, BIM и производства: плагины Revit, КОМПАС-3D и SolidWorks. Отдельные кейсы по платформам.',
+      },
+    },
+    {
+      path: '/:slug(kompas|revit|solidworks)',
+      name: 'platform',
+      component: PlatformPage,
+    },
+    {
+      path: '/resume',
+      name: 'resume',
+      component: ResumePage,
+      meta: {
+        title: 'Резюме — Воробьёв Александр Сергеевич · Инженер-конструктор',
+        description:
+          'Инженер-конструктор, КМ/КМД, листовой металл, автоматизация CAD (КОМПАС, SolidWorks, Revit). Удалённо.',
       },
     },
     {
@@ -29,8 +47,17 @@ const router = createRouter({
 })
 
 function applySeo(to: RouteLocationNormalized) {
-  const title = typeof to.meta.title === 'string' ? to.meta.title : undefined
-  const description = typeof to.meta.description === 'string' ? to.meta.description : undefined
+  let title = typeof to.meta.title === 'string' ? to.meta.title : undefined
+  let description = typeof to.meta.description === 'string' ? to.meta.description : undefined
+
+  if (to.name === 'platform') {
+    const p = getPlatform(String(to.params.slug || ''))
+    if (p) {
+      title = `${p.title} — CAD · BIM · Production`
+      description = p.heroLead
+    }
+  }
+
   if (title) document.title = title
 
   if (description) {

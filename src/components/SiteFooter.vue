@@ -9,6 +9,12 @@ import { site, techStack } from '@/data/content'
         {{ site.author }} — разработка ПО для инженерии и производства.
         Проекты для промышленных заказчиков; бренды и данные объектов не публикуются.
       </p>
+      <div class="footer-nav">
+        <RouterLink to="/kompas">КОМПАС</RouterLink>
+        <RouterLink to="/revit">Revit</RouterLink>
+        <RouterLink to="/solidworks">SolidWorks</RouterLink>
+        <RouterLink to="/resume">Резюме</RouterLink>
+      </div>
       <div class="footer-stack" aria-label="Стек технологий">
         <span v-for="t in techStack" :key="t" class="stack-chip">{{ t }}</span>
       </div>
@@ -45,6 +51,14 @@ import { site, techStack } from '@/data/content'
   flex-wrap: wrap;
   gap: 0.4rem;
   margin: 1rem 0 0.5rem;
+}
+
+.footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  margin-top: 0.85rem;
+  font-size: 0.95rem;
 }
 
 .footer-stack .stack-chip {

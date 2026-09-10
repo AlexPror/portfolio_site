@@ -13,9 +13,14 @@ if not exist "node_modules\" (
 
 if not exist "logs\" mkdir logs
 
-echo Starting dev server on http://localhost:5180
-echo Client logs: logs\portfolio-YYYY-MM-DD.log
 echo.
+echo Dev server:  http://localhost:5180/portfolio_site/
+echo (base path /portfolio_site/ — без него будет пустая страница)
+echo.
+echo Client logs: logs\portfolio-YYYY-MM-DD.log
+echo Stop: Ctrl+C
+echo.
+
 call npm run dev
 goto :eof
 
