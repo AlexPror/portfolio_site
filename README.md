@@ -43,7 +43,7 @@ build.bat
 
 ## Настройка `.env`
 
-Скопируйте `.env.example` → `.env` (в `.gitignore`):
+Скопируйте `.env.example` → `.env` (в `.gitignore`) для локальной разработки:
 
 | Переменная | Зачем |
 |------------|--------|
@@ -51,7 +51,19 @@ build.bat
 | `VITE_DESKREVIEW_URL` | Ссылка на DeskReview (по умолчанию [демо](https://alexpror.github.io/3d_viewer_1.0/)) |
 | `VITE_WEB3FORMS_KEY` | Форма → почта ([web3forms.com](https://web3forms.com)) |
 
-Без Web3Forms — FormSubmit (нужно подтвердить письмо с почты).
+Без Web3Forms — FormSubmit (нужно подтвердить письмо *Activate* с почты; на GitHub Pages часто не доходит).
+
+### Форма на GitHub Pages
+
+Pages — статика, почту шлёт только внешний сервис. Чтобы заявки шли через Web3Forms:
+
+1. Ключ на [web3forms.com](https://web3forms.com) (email = куда приходят заявки).
+2. В репо: **Settings → Secrets and variables → Actions** → New repository secret:
+   - имя: `VITE_WEB3FORMS_KEY`
+   - значение: access key из кабинета Web3Forms
+3. Пуш в `main` или **Actions → Deploy to GitHub Pages → Run workflow** — ключ подставится на `npm run build`.
+
+Опционально те же Secrets: `VITE_TELEGRAM_URL`, `VITE_DESKREVIEW_URL`.
 
 ## GitHub Pages
 
