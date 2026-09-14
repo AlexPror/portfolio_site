@@ -41,6 +41,7 @@ const dragging = ref(false)
 const stageRef = ref<SVGSVGElement | null>(null)
 const yawRef = ref(-32)
 const pitchRef = ref(22)
+const rollRef = ref(0)
 const explodeRef = ref(0)
 
 let hovering = false
@@ -49,19 +50,20 @@ let lastX = 0
 let lastY = 0
 let yaw = -32
 let pitch = 22
+let roll = 0
 let explode = 0
 let explodeTarget = 0
 let yawVel = 0.32
 let pitchVel = 0.12
+let rollVel = 0.1
 let nextSteerAt = 0
 
 function pickRandomSpin() {
-  // Prefer noticeable motion, random direction in both axes
-  const yawSign = Math.random() < 0.5 ? -1 : 1
-  const pitchSign = Math.random() < 0.5 ? -1 : 1
-  yawVel = yawSign * (0.22 + Math.random() * 0.45)
-  pitchVel = pitchSign * (0.08 + Math.random() * 0.28)
-  nextSteerAt = performance.now() + 2200 + Math.random() * 3800
+  const s = () => (Math.random() < 0.5 ? -1 : 1)
+  yawVel = s() * (0.18 + Math.random() * 0.42)
+  pitchVel = s() * (0.1 + Math.random() * 0.32)
+  rollVel = s() * (0.08 + Math.random() * 0.28)
+  nextSteerAt = performance.now() + 2000 + Math.random() * 4000
 }
 
 function syncOpen() {
@@ -69,19 +71,29 @@ function syncOpen() {
   explodeTarget = cubeOpen.value ? 0.28 : 0
 }
 
-function rotateNormal(
-  n: [number, number, number],
+/** yaw(Y) → pitch(X) → roll(Z) */
+function transformVec(
+  x: number,
+  y: number,
+  z: number,
   cosY: number,
   sinY: number,
   cosX: number,
   sinX: number,
+  cosZ: number,
+  sinZ: number,
 ) {
-  const [nx, ny, nz] = n
-  const x1 = nx * cosY + nz * sinY
-  const z1 = -nx * sinY + nz * cosY
-  const y1 = ny * cosX - z1 * sinX
-  const z2 = ny * sinX + z1 * cosX
-  return { x: x1, y: y1, z: z2 }
+  const x1 = x * cosY + z * sinY
+  const z1 = -x * sinY + z * cosY
+  const y1 = y
+
+  const y2 = y1 * cosX - z1 * sinX
+  const z2 = y1 * sinX + z1 * cosX
+  const x2 = x1
+
+  const x3 = x2 * cosZ - y2 * sinZ
+  const y3 = x2 * sinZ + y2 * cosZ
+  return { x: x3, y: y3, z: z2 }
 }
 
 function projectPoint(
@@ -92,39 +104,51 @@ function projectPoint(
   sinY: number,
   cosX: number,
   sinX: number,
+  cosZ: number,
+  sinZ: number,
 ) {
   const scale = 58
   const cx0 = 100
   const cy0 = 92
-  const x1 = x * cosY + z * sinY
-  const z1 = -x * sinY + z * cosY
-  const y1 = y * cosX - z1 * sinX
-  const z2 = y * sinX + z1 * cosX
-  const persp = 3.2 / (3.2 + z2)
+  const t = transformVec(x, y, z, cosY, sinY, cosX, sinX, cosZ, sinZ)
+  const persp = 3.2 / (3.2 + t.z)
   return {
-    x: cx0 + x1 * scale * persp,
-    y: cy0 + y1 * scale * persp,
-    z: z2,
+    x: cx0 + t.x * scale * persp,
+    y: cy0 + t.y * scale * persp,
+    z: t.z,
   }
 }
 
 const sortedFaces = computed(() => {
   const y = yawRef.value
   const p = pitchRef.value
+  const r = rollRef.value
   const ex = explodeRef.value
   const cosY = Math.cos((y * Math.PI) / 180)
   const sinY = Math.sin((y * Math.PI) / 180)
   const cosX = Math.cos((p * Math.PI) / 180)
   const sinX = Math.sin((p * Math.PI) / 180)
+  const cosZ = Math.cos((r * Math.PI) / 180)
+  const sinZ = Math.sin((r * Math.PI) / 180)
 
   const models = FACE_DEFS.map((face) => {
     const pts = face.indices.map((i) => {
       const [vx, vy, vz] = VERTS[i]
       const [nx, ny, nz] = face.normal
-      return projectPoint(vx + nx * ex, vy + ny * ex, vz + nz * ex, cosY, sinY, cosX, sinX)
+      return projectPoint(
+        vx + nx * ex,
+        vy + ny * ex,
+        vz + nz * ex,
+        cosY,
+        sinY,
+        cosX,
+        sinX,
+        cosZ,
+        sinZ,
+      )
     })
     const depth = pts.reduce((s, pt) => s + pt.z, 0) / pts.length
-    const n = rotateNormal(face.normal, cosY, sinY, cosX, sinX)
+    const n = transformVec(face.normal[0], face.normal[1], face.normal[2], cosY, sinY, cosX, sinX, cosZ, sinZ)
     const facing = n.z > 0.12
     const cx = pts.reduce((s, pt) => s + pt.x, 0) / pts.length
     const cy = pts.reduce((s, pt) => s + pt.y, 0) / pts.length
@@ -141,16 +165,18 @@ function tick() {
     if (now >= nextSteerAt) pickRandomSpin()
     yaw += yawVel
     pitch += pitchVel
-    if (pitch > 38) {
-      pitch = 38
+    roll += rollVel
+    if (pitch > 42) {
+      pitch = 42
       pitchVel = -Math.abs(pitchVel)
-    } else if (pitch < -38) {
-      pitch = -38
+    } else if (pitch < -42) {
+      pitch = -42
       pitchVel = Math.abs(pitchVel)
     }
   }
   yawRef.value = yaw
   pitchRef.value = pitch
+  rollRef.value = roll
   explodeRef.value = explode
   raf = requestAnimationFrame(tick)
 }
@@ -184,6 +210,8 @@ function onPointerMove(e: PointerEvent) {
   lastY = e.clientY
   yaw += dx * 0.5
   pitch = Math.max(-40, Math.min(40, pitch - dy * 0.4))
+  // slight roll from diagonal drag for 3-axis feel while steering
+  roll += dx * 0.08 + dy * 0.06
 }
 
 function onPointerUp(e: PointerEvent) {
