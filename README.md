@@ -2,9 +2,10 @@
 
 Лендинг: разработка ПО для CAD, BIM и производства + резюме конструктора.
 
-[![CAD · BIM · Production](./public/og.jpg)](https://alexpror.github.io/portfolio_site/)
+[![CAD · BIM · Production](./public/og.jpg)](https://vorobjev.pro/)
 
-**Сайт:** https://alexpror.github.io/portfolio_site/  
+**Сайт:** https://vorobjev.pro/  
+**Репозиторий:** https://github.com/AlexPror/portfolio_site  
 **Релиз:** [v1.0.0](https://github.com/AlexPror/portfolio_site/releases/tag/v1.0.0)
 
 ## Страницы
@@ -27,11 +28,7 @@
 run.bat
 ```
 
-Откроется Vite на порту **5180**. Важный URL (с `base`):
-
-**http://localhost:5180/portfolio_site/**
-
-Без `/portfolio_site/` страница часто пустая — так задумано под GitHub Pages.
+Dev-сервер: **http://localhost:5180/** (`base: '/'`).
 
 Сборка:
 
@@ -39,7 +36,7 @@ run.bat
 build.bat
 ```
 
-Превью production: `npm run preview` → http://localhost:4180/portfolio_site/
+Превью production: `npm run preview` → http://localhost:4180/
 
 ## Настройка `.env`
 
@@ -65,13 +62,27 @@ Pages — статика, почту шлёт только внешний сер
 
 Опционально те же Secrets: `VITE_TELEGRAM_URL`, `VITE_DESKREVIEW_URL`.
 
-## GitHub Pages
+## Домен и GitHub Pages
 
-Пуш в `main` → Actions собирает и деплоит.
+Продакшен: **https://vorobjev.pro** (custom domain → GitHub Pages).
 
-Один раз: **Settings → Pages → Source: GitHub Actions**.
+Пуш в `main` → Actions собирает и деплоит. Файл `public/CNAME` = `vorobjev.pro`.
 
-`base` в Vite: `/portfolio_site/`. При смене имени репо обновите `vite.config.ts`, `robots.txt`, `sitemap.xml`, `index.html`.
+Один раз в GitHub: **Settings → Pages → Custom domain** = `vorobjev.pro`, затем **Enforce HTTPS**.
+
+### DNS у REG.RU (зона vorobjev.pro)
+
+| Тип | Хост | Значение |
+|-----|------|----------|
+| A | `@` | `185.199.108.153` |
+| A | `@` | `185.199.109.153` |
+| A | `@` | `185.199.110.153` |
+| A | `@` | `185.199.111.153` |
+| CNAME | `www` | `alexpror.github.io` |
+
+Удали A/CNAME на хостинг REG.RU, если мешают. Распространение DNS: минуты–сутки.
+
+`base` в Vite: `/`. При смене домена обновите `vite.config.ts`, `public/CNAME`, `robots.txt`, `sitemap.xml`, `index.html`, `src/router/index.ts`.
 
 ## SEO
 

@@ -14,8 +14,7 @@ if not exist "node_modules\" (
 if not exist "logs\" mkdir logs
 
 echo.
-echo Dev server:  http://localhost:5180/portfolio_site/
-echo (base path /portfolio_site/ — без него будет пустая страница)
+echo Dev server:  http://localhost:5180/
 echo.
 echo Client logs: logs\portfolio-YYYY-MM-DD.log
 echo Stop: Ctrl+C

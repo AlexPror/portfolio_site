@@ -5,7 +5,7 @@ import ResumePage from '@/pages/ResumePage.vue'
 import { logger } from '@/lib/logger'
 import { getPlatform } from '@/data/platforms'
 
-const SITE_ORIGIN = 'https://alexpror.github.io/portfolio_site'
+const SITE_ORIGIN = 'https://vorobjev.pro'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
