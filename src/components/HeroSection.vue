@@ -205,10 +205,25 @@ onUnmounted(() => {
 
 .cube {
   position: relative;
+  z-index: 1;
   width: var(--cube);
   height: var(--cube);
   transform-style: preserve-3d;
   will-change: transform;
+  filter: drop-shadow(0 12px 20px rgba(20, 40, 70, 0.45));
+}
+
+.cube-stage::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 12%;
+  width: 68%;
+  height: 18%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse, rgba(74, 168, 255, 0.22) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .face {
@@ -219,17 +234,53 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  border: 1px solid rgba(74, 168, 255, 0.55);
-  background: rgba(28, 35, 48, 0.92);
-  color: var(--accent);
+  border: 1px solid rgba(150, 195, 255, 0.42);
+  background: linear-gradient(
+    145deg,
+    rgba(110, 160, 210, 0.28) 0%,
+    rgba(55, 75, 105, 0.4) 48%,
+    rgba(36, 48, 68, 0.48) 100%
+  );
+  color: #c5e0ff;
   text-decoration: none;
   backface-visibility: hidden;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 rgba(20, 30, 45, 0.25),
+    inset 0 0 24px rgba(74, 168, 255, 0.07);
   transition:
     transform 0.32s ease,
     border-color 0.2s ease,
     background 0.2s ease,
-    box-shadow 0.2s ease;
+    box-shadow 0.2s ease,
+    color 0.2s ease;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* CAD viewport frame */
+a.face::before {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  border: 1px solid rgba(170, 210, 255, 0.18);
+  pointer-events: none;
+}
+
+a.face::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  background:
+    linear-gradient(#7ec4ff, #7ec4ff) 0 0 / 8px 1px no-repeat,
+    linear-gradient(#7ec4ff, #7ec4ff) 0 0 / 1px 8px no-repeat,
+    linear-gradient(#7ec4ff, #7ec4ff) 100% 0 / 8px 1px no-repeat,
+    linear-gradient(#7ec4ff, #7ec4ff) 100% 0 / 1px 8px no-repeat,
+    linear-gradient(#7ec4ff, #7ec4ff) 0 100% / 8px 1px no-repeat,
+    linear-gradient(#7ec4ff, #7ec4ff) 0 100% / 1px 8px no-repeat,
+    linear-gradient(#7ec4ff, #7ec4ff) 100% 100% / 8px 1px no-repeat,
+    linear-gradient(#7ec4ff, #7ec4ff) 100% 100% / 1px 8px no-repeat;
+  opacity: 0.55;
+  pointer-events: none;
 }
 
 .cube-stage.dragging .face {
@@ -238,14 +289,24 @@ onUnmounted(() => {
 
 a.face:hover,
 a.face:focus-visible {
-  border-color: var(--accent);
-  background: rgba(34, 48, 68, 0.98);
-  box-shadow: inset 0 0 0 1px rgba(74, 168, 255, 0.25);
-  color: #7ec4ff;
+  border-color: rgba(180, 220, 255, 0.85);
+  background: linear-gradient(
+    145deg,
+    rgba(130, 180, 230, 0.4) 0%,
+    rgba(70, 100, 140, 0.52) 50%,
+    rgba(45, 65, 95, 0.58) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 0 28px rgba(74, 168, 255, 0.16),
+    0 0 16px rgba(74, 168, 255, 0.22);
+  color: #e8f4ff;
   outline: none;
 }
 
 .face-label {
+  position: relative;
+  z-index: 1;
   font-family: var(--font-mono);
   font-size: 0.68rem;
   font-weight: 500;
@@ -256,6 +317,9 @@ a.face:focus-visible {
   padding: 0.35rem;
   pointer-events: none;
   user-select: none;
+  text-shadow:
+    0 0 10px rgba(12, 24, 40, 0.9),
+    0 1px 2px rgba(0, 0, 0, 0.55);
 }
 
 .face-right .face-label {
@@ -267,8 +331,13 @@ a.face:focus-visible {
 .face-bottom,
 .face-back {
   pointer-events: none;
-  background: rgba(22, 27, 36, 0.88);
-  border-color: rgba(74, 168, 255, 0.28);
+  background: linear-gradient(
+    160deg,
+    rgba(80, 110, 145, 0.2) 0%,
+    rgba(40, 52, 70, 0.32) 100%
+  );
+  border-color: rgba(120, 165, 220, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .face-front {
