@@ -7,8 +7,11 @@ import BlueprintBackground from '@/components/BlueprintBackground.vue'
 
 const faces = [
   { key: 'front', label: 'Revit', to: '/revit', className: 'face-front' },
+  { key: 'back', label: 'Revit', to: '/revit', className: 'face-back' },
   { key: 'right', label: 'SolidWorks', to: '/solidworks', className: 'face-right' },
-  { key: 'left', label: 'КОМПАС', to: '/kompas', className: 'face-left' },
+  { key: 'left', label: 'КОМПАС 3D', to: '/kompas', className: 'face-left' },
+  { key: 'top', label: 'SolidWorks', to: '/solidworks', className: 'face-top' },
+  { key: 'bottom', label: 'КОМПАС 3D', to: '/kompas', className: 'face-bottom' },
 ] as const
 
 const reducedMotion = ref(false)
@@ -153,15 +156,12 @@ onUnmounted(() => {
               :key="f.key"
               :to="f.to"
               class="face"
-              :class="f.className"
+              :class="[f.className, { 'face-label-sm': f.label.length > 8 }]"
               :title="`${f.label} — кейсы`"
               @click="onFaceClick($event, f.label, f.to)"
             >
               <span class="face-label">{{ f.label }}</span>
             </RouterLink>
-            <div class="face face-top" aria-hidden="true" />
-            <div class="face face-bottom" aria-hidden="true" />
-            <div class="face face-back" aria-hidden="true" />
           </div>
           <p class="cube-hint">Наведите · СКМ — вращение · клик — платформа</p>
         </div>
@@ -313,7 +313,7 @@ a.face:focus-visible {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   text-align: center;
-  line-height: 1.2;
+  line-height: 1.25;
   padding: 0.35rem;
   pointer-events: none;
   user-select: none;
@@ -322,22 +322,9 @@ a.face:focus-visible {
     0 1px 2px rgba(0, 0, 0, 0.55);
 }
 
-.face-right .face-label {
-  font-size: 0.56rem;
-  letter-spacing: 0.06em;
-}
-
-.face-top,
-.face-bottom,
-.face-back {
-  pointer-events: none;
-  background: linear-gradient(
-    160deg,
-    rgba(80, 110, 145, 0.2) 0%,
-    rgba(40, 52, 70, 0.32) 100%
-  );
-  border-color: rgba(120, 165, 220, 0.22);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+.face-label-sm .face-label {
+  font-size: 0.52rem;
+  letter-spacing: 0.05em;
 }
 
 .face-front {
