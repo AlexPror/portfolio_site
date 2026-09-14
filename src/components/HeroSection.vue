@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { site, heroFacts } from '@/data/content'
 import { logger } from '@/lib/logger'
@@ -13,18 +13,88 @@ const faces = [
 
 const reducedMotion = ref(false)
 const cubeOpen = ref(false)
+const dragging = ref(false)
+const rotX = ref(-22)
+const rotY = ref(-32)
+const stageRef = ref<HTMLElement | null>(null)
+
+let hovering = false
+let raf = 0
+let lastX = 0
+let lastY = 0
+
+function tick() {
+  if (!reducedMotion.value && !cubeOpen.value && !dragging.value) {
+    rotY.value += 0.35
+  }
+  raf = requestAnimationFrame(tick)
+}
+
+function syncOpen() {
+  cubeOpen.value = hovering || dragging.value
+}
 
 function onCubeEnter(e: PointerEvent) {
-  if (reducedMotion.value) return
   if (e.pointerType === 'touch') return
-  cubeOpen.value = true
+  hovering = true
+  syncOpen()
 }
 
 function onCubeLeave() {
-  cubeOpen.value = false
+  hovering = false
+  if (!dragging.value) syncOpen()
 }
 
-function onFaceClick(label: string, to: string) {
+function onPointerDown(e: PointerEvent) {
+  if (e.button !== 1) return
+  e.preventDefault()
+  dragging.value = true
+  syncOpen()
+  lastX = e.clientX
+  lastY = e.clientY
+  stageRef.value?.setPointerCapture(e.pointerId)
+  logger.debug('hero cube drag start')
+}
+
+function onPointerMove(e: PointerEvent) {
+  if (!dragging.value) return
+  const dx = e.clientX - lastX
+  const dy = e.clientY - lastY
+  lastX = e.clientX
+  lastY = e.clientY
+  rotY.value += dx * 0.5
+  rotX.value = Math.max(-55, Math.min(55, rotX.value - dy * 0.4))
+}
+
+function onPointerUp(e: PointerEvent) {
+  if (!dragging.value) return
+  if (e.button !== 1 && e.type !== 'pointercancel') return
+  dragging.value = false
+  try {
+    stageRef.value?.releasePointerCapture(e.pointerId)
+  } catch {
+    /* already released */
+  }
+  syncOpen()
+}
+
+function onMiddleMouseDown(e: MouseEvent) {
+  if (e.button === 1) e.preventDefault()
+}
+
+function onAuxClick(e: MouseEvent) {
+  e.preventDefault()
+}
+
+function onFaceClick(e: MouseEvent, label: string, to: string) {
+  if (e.button !== 0) {
+    e.preventDefault()
+    return
+  }
+  if (dragging.value) {
+    e.preventDefault()
+    return
+  }
   logger.debug('hero cube face', { label, to })
 }
 
@@ -34,6 +104,11 @@ function ctaContact() {
 
 onMounted(() => {
   reducedMotion.value = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  raf = requestAnimationFrame(tick)
+})
+
+onUnmounted(() => {
+  cancelAnimationFrame(raf)
 })
 </script>
 
@@ -55,12 +130,24 @@ onMounted(() => {
       </div>
       <div class="hero-visual">
         <div
+          ref="stageRef"
           class="cube-stage"
-          :class="{ open: cubeOpen, 'no-spin': reducedMotion || cubeOpen }"
+          :class="{ open: cubeOpen, dragging }"
           @pointerenter="onCubeEnter"
           @pointerleave="onCubeLeave"
+          @pointerdown="onPointerDown"
+          @pointermove="onPointerMove"
+          @pointerup="onPointerUp"
+          @pointercancel="onPointerUp"
+          @mousedown="onMiddleMouseDown"
+          @auxclick="onAuxClick"
         >
-          <div class="cube" role="navigation" aria-label="Платформы CAD">
+          <div
+            class="cube"
+            role="navigation"
+            aria-label="Платформы CAD. Зажмите колесико мыши и двигайте, чтобы вращать."
+            :style="{ transform: `rotateX(${rotX}deg) rotateY(${rotY}deg)` }"
+          >
             <RouterLink
               v-for="f in faces"
               :key="f.key"
@@ -68,7 +155,7 @@ onMounted(() => {
               class="face"
               :class="f.className"
               :title="`${f.label} — кейсы`"
-              @click="onFaceClick(f.label, f.to)"
+              @click="onFaceClick($event, f.label, f.to)"
             >
               <span class="face-label">{{ f.label }}</span>
             </RouterLink>
@@ -76,7 +163,7 @@ onMounted(() => {
             <div class="face face-bottom" aria-hidden="true" />
             <div class="face face-back" aria-hidden="true" />
           </div>
-          <p class="cube-hint">Наведите · выберите платформу</p>
+          <p class="cube-hint">Наведите · СКМ — вращение · клик — платформа</p>
         </div>
       </div>
     </div>
@@ -103,10 +190,17 @@ onMounted(() => {
   justify-content: center;
   perspective: 640px;
   perspective-origin: 50% 45%;
+  touch-action: none;
 }
 
 .cube-stage.open {
   --gap: 12px;
+  cursor: grab;
+}
+
+.cube-stage.dragging {
+  cursor: grabbing;
+  user-select: none;
 }
 
 .cube {
@@ -114,26 +208,7 @@ onMounted(() => {
   width: var(--cube);
   height: var(--cube);
   transform-style: preserve-3d;
-  transform: rotateX(-22deg) rotateY(-32deg);
-  animation: cube-spin 16s linear infinite;
-}
-
-.cube-stage.no-spin .cube {
-  animation-play-state: paused;
-}
-
-.cube-stage.no-spin:not(.open) .cube {
-  /* reduced motion: readable static angle */
-  transform: rotateX(-18deg) rotateY(-28deg);
-}
-
-@keyframes cube-spin {
-  from {
-    transform: rotateX(-22deg) rotateY(-32deg);
-  }
-  to {
-    transform: rotateX(-22deg) rotateY(328deg);
-  }
+  will-change: transform;
 }
 
 .face {
@@ -155,6 +230,10 @@ onMounted(() => {
     background 0.2s ease,
     box-shadow 0.2s ease;
   -webkit-tap-highlight-color: transparent;
+}
+
+.cube-stage.dragging .face {
+  transition: transform 0.32s ease;
 }
 
 a.face:hover,
@@ -225,7 +304,7 @@ a.face:focus-visible {
   width: max-content;
   max-width: 100%;
   font-family: var(--font-mono);
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   letter-spacing: 0.04em;
   color: var(--text-muted);
   opacity: 0.75;
@@ -240,8 +319,8 @@ a.face:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cube {
-    animation: none !important;
+  .cube-stage.open {
+    --gap: 8px;
   }
 }
 </style>
