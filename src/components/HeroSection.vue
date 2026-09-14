@@ -188,8 +188,9 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  perspective: 640px;
-  perspective-origin: 50% 45%;
+  perspective: 900px;
+  perspective-origin: 50% 42%;
+  transform-style: preserve-3d;
   touch-action: none;
 }
 
@@ -209,25 +210,27 @@ onUnmounted(() => {
   width: var(--cube);
   height: var(--cube);
   transform-style: preserve-3d;
-  will-change: transform;
-  filter: drop-shadow(0 12px 20px rgba(20, 40, 70, 0.45));
+  -webkit-transform-style: preserve-3d;
+  /* no filter here — filter flattens preserve-3d to a single plane */
 }
 
 .cube-stage::before {
   content: '';
   position: absolute;
   left: 50%;
-  bottom: 12%;
-  width: 68%;
-  height: 18%;
+  bottom: 10%;
+  width: 72%;
+  height: 20%;
   transform: translateX(-50%);
-  background: radial-gradient(ellipse, rgba(74, 168, 255, 0.22) 0%, transparent 70%);
+  background: radial-gradient(ellipse, rgba(74, 168, 255, 0.28) 0%, transparent 72%);
   pointer-events: none;
   z-index: 0;
 }
 
 .face {
   position: absolute;
+  left: 0;
+  top: 0;
   width: var(--cube);
   height: var(--cube);
   display: flex;
@@ -244,6 +247,8 @@ onUnmounted(() => {
   color: #c5e0ff;
   text-decoration: none;
   backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform-style: preserve-3d;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.14),
     inset 0 -1px 0 rgba(20, 30, 45, 0.25),
