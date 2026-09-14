@@ -51,6 +51,18 @@ let yaw = -32
 let pitch = 22
 let explode = 0
 let explodeTarget = 0
+let yawVel = 0.32
+let pitchVel = 0.12
+let nextSteerAt = 0
+
+function pickRandomSpin() {
+  // Prefer noticeable motion, random direction in both axes
+  const yawSign = Math.random() < 0.5 ? -1 : 1
+  const pitchSign = Math.random() < 0.5 ? -1 : 1
+  yawVel = yawSign * (0.22 + Math.random() * 0.45)
+  pitchVel = pitchSign * (0.08 + Math.random() * 0.28)
+  nextSteerAt = performance.now() + 2200 + Math.random() * 3800
+}
 
 function syncOpen() {
   cubeOpen.value = hovering || dragging.value
@@ -113,7 +125,7 @@ const sortedFaces = computed(() => {
     })
     const depth = pts.reduce((s, pt) => s + pt.z, 0) / pts.length
     const n = rotateNormal(face.normal, cosY, sinY, cosX, sinX)
-    const facing = n.z > 0.05
+    const facing = n.z > 0.12
     const cx = pts.reduce((s, pt) => s + pt.x, 0) / pts.length
     const cy = pts.reduce((s, pt) => s + pt.y, 0) / pts.length
     const points = pts.map((pt) => `${pt.x.toFixed(2)},${pt.y.toFixed(2)}`).join(' ')
@@ -124,8 +136,18 @@ const sortedFaces = computed(() => {
 
 function tick() {
   explode += (explodeTarget - explode) * 0.18
+  const now = performance.now()
   if (!reducedMotion.value && !cubeOpen.value && !dragging.value) {
-    yaw += 0.35
+    if (now >= nextSteerAt) pickRandomSpin()
+    yaw += yawVel
+    pitch += pitchVel
+    if (pitch > 38) {
+      pitch = 38
+      pitchVel = -Math.abs(pitchVel)
+    } else if (pitch < -38) {
+      pitch = -38
+      pitchVel = Math.abs(pitchVel)
+    }
   }
   yawRef.value = yaw
   pitchRef.value = pitch
@@ -196,6 +218,7 @@ function ctaContact() {
 
 onMounted(() => {
   reducedMotion.value = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  pickRandomSpin()
   raf = requestAnimationFrame(tick)
 })
 
@@ -243,13 +266,9 @@ onUnmounted(() => {
           >
             <defs>
               <radialGradient id="cube-glow" cx="50%" cy="45%" r="55%">
-                <stop offset="0%" stop-color="rgba(74,168,255,0.2)" />
+                <stop offset="0%" stop-color="rgba(74,168,255,0.18)" />
                 <stop offset="100%" stop-color="rgba(74,168,255,0)" />
               </radialGradient>
-              <linearGradient id="face-fill" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="rgba(120,170,220,0.45)" />
-                <stop offset="100%" stop-color="rgba(40,55,78,0.55)" />
-              </linearGradient>
             </defs>
             <ellipse cx="100" cy="168" rx="62" ry="14" fill="url(#cube-glow)" />
             <g class="cube-faces">
@@ -325,40 +344,45 @@ onUnmounted(() => {
 }
 
 .face-poly {
-  fill: url(#face-fill);
-  stroke: rgba(150, 200, 255, 0.65);
-  stroke-width: 1.2;
+  fill: #243044;
+  stroke: rgba(120, 175, 235, 0.7);
+  stroke-width: 1.35;
   transition:
     fill 0.15s ease,
     stroke 0.15s ease;
 }
 
 .face-poly.dim {
-  fill: rgba(45, 58, 78, 0.35);
-  stroke: rgba(100, 150, 200, 0.28);
+  fill: #1a2230;
+  stroke: rgba(90, 130, 180, 0.4);
+}
+
+.face-hit.facing .face-poly {
+  fill: #2a3a52;
+  stroke: rgba(150, 200, 255, 0.85);
 }
 
 .face-hit:hover .face-poly,
 .face-hit:focus-visible .face-poly {
-  fill: rgba(100, 160, 220, 0.55);
-  stroke: rgba(180, 220, 255, 0.95);
+  fill: #334a68;
+  stroke: #9fd0ff;
 }
 
 .face-label {
-  fill: #e8f4ff;
+  fill: #eaf4ff;
   font-family: var(--font-mono);
-  font-size: 7.2px;
-  font-weight: 500;
+  font-size: 7.5px;
+  font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   pointer-events: none;
   paint-order: stroke fill;
-  stroke: rgba(12, 24, 40, 0.75);
-  stroke-width: 0.6px;
+  stroke: rgba(12, 20, 32, 0.92);
+  stroke-width: 1.1px;
 }
 
 .face-label.sm {
-  font-size: 5.4px;
+  font-size: 5.6px;
   letter-spacing: 0.04em;
 }
 
