@@ -1,40 +1,136 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { site, heroFacts } from '@/data/content'
 import { logger } from '@/lib/logger'
 import BlueprintBackground from '@/components/BlueprintBackground.vue'
 
-const faces = [
-  { key: 'front', label: 'Revit', to: '/revit', className: 'face-front' },
-  { key: 'back', label: 'Revit', to: '/revit', className: 'face-back' },
-  { key: 'right', label: 'SolidWorks', to: '/solidworks', className: 'face-right' },
-  { key: 'left', label: 'КОМПАС 3D', to: '/kompas', className: 'face-left' },
-  { key: 'top', label: 'SolidWorks', to: '/solidworks', className: 'face-top' },
-  { key: 'bottom', label: 'КОМПАС 3D', to: '/kompas', className: 'face-bottom' },
-] as const
+const router = useRouter()
+
+const VERTS: [number, number, number][] = [
+  [-1, -1, -1],
+  [1, -1, -1],
+  [1, 1, -1],
+  [-1, 1, -1],
+  [-1, -1, 1],
+  [1, -1, 1],
+  [1, 1, 1],
+  [-1, 1, 1],
+]
+
+type FaceDef = {
+  id: string
+  indices: [number, number, number, number]
+  label: string
+  to: string
+  normal: [number, number, number]
+}
+
+const FACE_DEFS: FaceDef[] = [
+  { id: 'front', indices: [4, 5, 6, 7], label: 'Revit', to: '/revit', normal: [0, 0, 1] },
+  { id: 'back', indices: [1, 0, 3, 2], label: 'Revit', to: '/revit', normal: [0, 0, -1] },
+  { id: 'right', indices: [5, 1, 2, 6], label: 'SolidWorks', to: '/solidworks', normal: [1, 0, 0] },
+  { id: 'left', indices: [0, 4, 7, 3], label: 'КОМПАС 3D', to: '/kompas', normal: [-1, 0, 0] },
+  { id: 'top', indices: [7, 6, 2, 3], label: 'SolidWorks', to: '/solidworks', normal: [0, 1, 0] },
+  { id: 'bottom', indices: [0, 1, 5, 4], label: 'КОМПАС 3D', to: '/kompas', normal: [0, -1, 0] },
+]
 
 const reducedMotion = ref(false)
 const cubeOpen = ref(false)
 const dragging = ref(false)
-const rotX = ref(-22)
-const rotY = ref(-32)
-const stageRef = ref<HTMLElement | null>(null)
+const stageRef = ref<SVGSVGElement | null>(null)
+const yawRef = ref(-32)
+const pitchRef = ref(22)
+const explodeRef = ref(0)
 
 let hovering = false
 let raf = 0
 let lastX = 0
 let lastY = 0
-
-function tick() {
-  if (!reducedMotion.value && !cubeOpen.value && !dragging.value) {
-    rotY.value += 0.35
-  }
-  raf = requestAnimationFrame(tick)
-}
+let yaw = -32
+let pitch = 22
+let explode = 0
+let explodeTarget = 0
 
 function syncOpen() {
   cubeOpen.value = hovering || dragging.value
+  explodeTarget = cubeOpen.value ? 0.28 : 0
+}
+
+function rotateNormal(
+  n: [number, number, number],
+  cosY: number,
+  sinY: number,
+  cosX: number,
+  sinX: number,
+) {
+  const [nx, ny, nz] = n
+  const x1 = nx * cosY + nz * sinY
+  const z1 = -nx * sinY + nz * cosY
+  const y1 = ny * cosX - z1 * sinX
+  const z2 = ny * sinX + z1 * cosX
+  return { x: x1, y: y1, z: z2 }
+}
+
+function projectPoint(
+  x: number,
+  y: number,
+  z: number,
+  cosY: number,
+  sinY: number,
+  cosX: number,
+  sinX: number,
+) {
+  const scale = 58
+  const cx0 = 100
+  const cy0 = 92
+  const x1 = x * cosY + z * sinY
+  const z1 = -x * sinY + z * cosY
+  const y1 = y * cosX - z1 * sinX
+  const z2 = y * sinX + z1 * cosX
+  const persp = 3.2 / (3.2 + z2)
+  return {
+    x: cx0 + x1 * scale * persp,
+    y: cy0 + y1 * scale * persp,
+    z: z2,
+  }
+}
+
+const sortedFaces = computed(() => {
+  const y = yawRef.value
+  const p = pitchRef.value
+  const ex = explodeRef.value
+  const cosY = Math.cos((y * Math.PI) / 180)
+  const sinY = Math.sin((y * Math.PI) / 180)
+  const cosX = Math.cos((p * Math.PI) / 180)
+  const sinX = Math.sin((p * Math.PI) / 180)
+
+  const models = FACE_DEFS.map((face) => {
+    const pts = face.indices.map((i) => {
+      const [vx, vy, vz] = VERTS[i]
+      const [nx, ny, nz] = face.normal
+      return projectPoint(vx + nx * ex, vy + ny * ex, vz + nz * ex, cosY, sinY, cosX, sinX)
+    })
+    const depth = pts.reduce((s, pt) => s + pt.z, 0) / pts.length
+    const n = rotateNormal(face.normal, cosY, sinY, cosX, sinX)
+    const facing = n.z > 0.05
+    const cx = pts.reduce((s, pt) => s + pt.x, 0) / pts.length
+    const cy = pts.reduce((s, pt) => s + pt.y, 0) / pts.length
+    const points = pts.map((pt) => `${pt.x.toFixed(2)},${pt.y.toFixed(2)}`).join(' ')
+    return { ...face, points, depth, facing, cx, cy }
+  })
+  return models.sort((a, b) => a.depth - b.depth)
+})
+
+function tick() {
+  explode += (explodeTarget - explode) * 0.18
+  if (!reducedMotion.value && !cubeOpen.value && !dragging.value) {
+    yaw += 0.35
+  }
+  yawRef.value = yaw
+  pitchRef.value = pitch
+  explodeRef.value = explode
+  raf = requestAnimationFrame(tick)
 }
 
 function onCubeEnter(e: PointerEvent) {
@@ -56,7 +152,6 @@ function onPointerDown(e: PointerEvent) {
   lastX = e.clientX
   lastY = e.clientY
   stageRef.value?.setPointerCapture(e.pointerId)
-  logger.debug('hero cube drag start')
 }
 
 function onPointerMove(e: PointerEvent) {
@@ -65,8 +160,8 @@ function onPointerMove(e: PointerEvent) {
   const dy = e.clientY - lastY
   lastX = e.clientX
   lastY = e.clientY
-  rotY.value += dx * 0.5
-  rotX.value = Math.max(-55, Math.min(55, rotX.value - dy * 0.4))
+  yaw += dx * 0.5
+  pitch = Math.max(-40, Math.min(40, pitch - dy * 0.4))
 }
 
 function onPointerUp(e: PointerEvent) {
@@ -76,7 +171,7 @@ function onPointerUp(e: PointerEvent) {
   try {
     stageRef.value?.releasePointerCapture(e.pointerId)
   } catch {
-    /* already released */
+    /* ok */
   }
   syncOpen()
 }
@@ -89,16 +184,10 @@ function onAuxClick(e: MouseEvent) {
   e.preventDefault()
 }
 
-function onFaceClick(e: MouseEvent, label: string, to: string) {
-  if (e.button !== 0) {
-    e.preventDefault()
-    return
-  }
-  if (dragging.value) {
-    e.preventDefault()
-    return
-  }
+function onFaceActivate(label: string, to: string) {
+  if (dragging.value) return
   logger.debug('hero cube face', { label, to })
+  router.push(to)
 }
 
 function ctaContact() {
@@ -133,7 +222,6 @@ onUnmounted(() => {
       </div>
       <div class="hero-visual">
         <div
-          ref="stageRef"
           class="cube-stage"
           :class="{ open: cubeOpen, dragging }"
           @pointerenter="onCubeEnter"
@@ -145,24 +233,52 @@ onUnmounted(() => {
           @mousedown="onMiddleMouseDown"
           @auxclick="onAuxClick"
         >
-          <div
-            class="cube"
+          <svg
+            ref="stageRef"
+            class="wire-cube-svg"
+            viewBox="0 0 200 200"
+            xmlns="http://www.w3.org/2000/svg"
             role="navigation"
-            aria-label="Платформы CAD. Зажмите колесико мыши и двигайте, чтобы вращать."
-            :style="{ transform: `rotateX(${rotX}deg) rotateY(${rotY}deg)` }"
+            aria-label="Платформы CAD. Наведите, СКМ — вращение, клик — страница."
           >
-            <RouterLink
-              v-for="f in faces"
-              :key="f.key"
-              :to="f.to"
-              class="face"
-              :class="[f.className, { 'face-label-sm': f.label.length > 8 }]"
-              :title="`${f.label} — кейсы`"
-              @click="onFaceClick($event, f.label, f.to)"
-            >
-              <span class="face-label">{{ f.label }}</span>
-            </RouterLink>
-          </div>
+            <defs>
+              <radialGradient id="cube-glow" cx="50%" cy="45%" r="55%">
+                <stop offset="0%" stop-color="rgba(74,168,255,0.2)" />
+                <stop offset="100%" stop-color="rgba(74,168,255,0)" />
+              </radialGradient>
+              <linearGradient id="face-fill" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="rgba(120,170,220,0.45)" />
+                <stop offset="100%" stop-color="rgba(40,55,78,0.55)" />
+              </linearGradient>
+            </defs>
+            <ellipse cx="100" cy="168" rx="62" ry="14" fill="url(#cube-glow)" />
+            <g class="cube-faces">
+              <g
+                v-for="f in sortedFaces"
+                :key="f.id"
+                class="face-hit"
+                :class="{ facing: f.facing }"
+                role="link"
+                tabindex="0"
+                :aria-label="`${f.label} — кейсы`"
+                @click="onFaceActivate(f.label, f.to)"
+                @keydown.enter="onFaceActivate(f.label, f.to)"
+              >
+                <polygon :points="f.points" class="face-poly" :class="{ dim: !f.facing }" />
+                <text
+                  v-if="f.facing"
+                  :x="f.cx"
+                  :y="f.cy"
+                  class="face-label"
+                  :class="{ sm: f.label.length > 8 }"
+                  text-anchor="middle"
+                  dominant-baseline="middle"
+                >
+                  {{ f.label }}
+                </text>
+              </g>
+            </g>
+          </svg>
           <p class="cube-hint">Наведите · СКМ — вращение · клик — платформа</p>
         </div>
       </div>
@@ -179,23 +295,16 @@ onUnmounted(() => {
 
 <style scoped>
 .cube-stage {
-  --cube: 120px;
-  --half: 60px;
-  --gap: 0px;
   position: relative;
   width: min(240px, 52vw);
   height: min(240px, 52vw);
   display: flex;
   align-items: center;
   justify-content: center;
-  perspective: 900px;
-  perspective-origin: 50% 42%;
-  transform-style: preserve-3d;
   touch-action: none;
 }
 
 .cube-stage.open {
-  --gap: 12px;
   cursor: grab;
 }
 
@@ -204,156 +313,53 @@ onUnmounted(() => {
   user-select: none;
 }
 
-.cube {
-  position: relative;
-  z-index: 1;
-  width: var(--cube);
-  height: var(--cube);
-  transform-style: preserve-3d;
-  -webkit-transform-style: preserve-3d;
-  /* no filter here — filter flattens preserve-3d to a single plane */
+.wire-cube-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
 }
 
-.cube-stage::before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  bottom: 10%;
-  width: 72%;
-  height: 20%;
-  transform: translateX(-50%);
-  background: radial-gradient(ellipse, rgba(74, 168, 255, 0.28) 0%, transparent 72%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.face {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: var(--cube);
-  height: var(--cube);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  border: 1px solid rgba(150, 195, 255, 0.42);
-  background: linear-gradient(
-    145deg,
-    rgba(110, 160, 210, 0.28) 0%,
-    rgba(55, 75, 105, 0.4) 48%,
-    rgba(36, 48, 68, 0.48) 100%
-  );
-  color: #c5e0ff;
-  text-decoration: none;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  transform-style: preserve-3d;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.14),
-    inset 0 -1px 0 rgba(20, 30, 45, 0.25),
-    inset 0 0 24px rgba(74, 168, 255, 0.07);
-  transition:
-    transform 0.32s ease,
-    border-color 0.2s ease,
-    background 0.2s ease,
-    box-shadow 0.2s ease,
-    color 0.2s ease;
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* CAD viewport frame */
-a.face::before {
-  content: '';
-  position: absolute;
-  inset: 7px;
-  border: 1px solid rgba(170, 210, 255, 0.18);
-  pointer-events: none;
-}
-
-a.face::after {
-  content: '';
-  position: absolute;
-  inset: 4px;
-  background:
-    linear-gradient(#7ec4ff, #7ec4ff) 0 0 / 8px 1px no-repeat,
-    linear-gradient(#7ec4ff, #7ec4ff) 0 0 / 1px 8px no-repeat,
-    linear-gradient(#7ec4ff, #7ec4ff) 100% 0 / 8px 1px no-repeat,
-    linear-gradient(#7ec4ff, #7ec4ff) 100% 0 / 1px 8px no-repeat,
-    linear-gradient(#7ec4ff, #7ec4ff) 0 100% / 8px 1px no-repeat,
-    linear-gradient(#7ec4ff, #7ec4ff) 0 100% / 1px 8px no-repeat,
-    linear-gradient(#7ec4ff, #7ec4ff) 100% 100% / 8px 1px no-repeat,
-    linear-gradient(#7ec4ff, #7ec4ff) 100% 100% / 1px 8px no-repeat;
-  opacity: 0.55;
-  pointer-events: none;
-}
-
-.cube-stage.dragging .face {
-  transition: transform 0.32s ease;
-}
-
-a.face:hover,
-a.face:focus-visible {
-  border-color: rgba(180, 220, 255, 0.85);
-  background: linear-gradient(
-    145deg,
-    rgba(130, 180, 230, 0.4) 0%,
-    rgba(70, 100, 140, 0.52) 50%,
-    rgba(45, 65, 95, 0.58) 100%
-  );
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 0 28px rgba(74, 168, 255, 0.16),
-    0 0 16px rgba(74, 168, 255, 0.22);
-  color: #e8f4ff;
+.face-hit {
+  cursor: pointer;
   outline: none;
 }
 
+.face-poly {
+  fill: url(#face-fill);
+  stroke: rgba(150, 200, 255, 0.65);
+  stroke-width: 1.2;
+  transition:
+    fill 0.15s ease,
+    stroke 0.15s ease;
+}
+
+.face-poly.dim {
+  fill: rgba(45, 58, 78, 0.35);
+  stroke: rgba(100, 150, 200, 0.28);
+}
+
+.face-hit:hover .face-poly,
+.face-hit:focus-visible .face-poly {
+  fill: rgba(100, 160, 220, 0.55);
+  stroke: rgba(180, 220, 255, 0.95);
+}
+
 .face-label {
-  position: relative;
-  z-index: 1;
+  fill: #e8f4ff;
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 7.2px;
   font-weight: 500;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  text-align: center;
-  line-height: 1.25;
-  padding: 0.35rem;
   pointer-events: none;
-  user-select: none;
-  text-shadow:
-    0 0 10px rgba(12, 24, 40, 0.9),
-    0 1px 2px rgba(0, 0, 0, 0.55);
+  paint-order: stroke fill;
+  stroke: rgba(12, 24, 40, 0.75);
+  stroke-width: 0.6px;
 }
 
-.face-label-sm .face-label {
-  font-size: 0.52rem;
-  letter-spacing: 0.05em;
-}
-
-.face-front {
-  transform: rotateY(0deg) translateZ(calc(var(--half) + var(--gap)));
-}
-
-.face-back {
-  transform: rotateY(180deg) translateZ(calc(var(--half) + var(--gap)));
-}
-
-.face-right {
-  transform: rotateY(90deg) translateZ(calc(var(--half) + var(--gap)));
-}
-
-.face-left {
-  transform: rotateY(-90deg) translateZ(calc(var(--half) + var(--gap)));
-}
-
-.face-top {
-  transform: rotateX(90deg) translateZ(calc(var(--half) + var(--gap)));
-}
-
-.face-bottom {
-  transform: rotateX(-90deg) translateZ(calc(var(--half) + var(--gap)));
+.face-label.sm {
+  font-size: 5.4px;
+  letter-spacing: 0.04em;
 }
 
 .cube-hint {
@@ -376,12 +382,6 @@ a.face:focus-visible {
 @media (max-width: 519px) {
   .cube-hint {
     display: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .cube-stage.open {
-    --gap: 8px;
   }
 }
 </style>
