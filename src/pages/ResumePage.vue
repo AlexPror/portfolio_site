@@ -1,9 +1,18 @@
 <script setup lang="ts">
 import { resume } from '@/data/resume'
-import { site } from '@/data/content'
 
 function downloadPdf() {
   window.print()
+}
+
+function shortUrl(href: string) {
+  try {
+    const u = new URL(href)
+    const path = u.pathname === '/' ? '' : u.pathname
+    return `${u.host}${path}`.replace(/\/$/, '')
+  } catch {
+    return href
+  }
 }
 </script>
 
@@ -22,11 +31,11 @@ function downloadPdf() {
           <div class="resume-contacts">
             <a :href="`tel:${resume.phone.replace(/\s|\(|\)|-/g, '')}`">{{ resume.phone }}</a>
             <a :href="`mailto:${resume.email}`">{{ resume.email }}</a>
+            <a :href="resume.portfolioUrl" target="_blank" rel="noopener">{{ resume.portfolioUrl }}</a>
+            <a :href="resume.telegramUrl" target="_blank" rel="noopener">Telegram</a>
+            <a :href="resume.githubUrl" target="_blank" rel="noopener">GitHub</a>
             <span>{{ resume.city }}</span>
             <span>{{ resume.citizenship }}</span>
-            <a v-if="site.contact.telegram" :href="site.contact.telegram" target="_blank" rel="noopener">
-              Telegram
-            </a>
           </div>
         </div>
 
@@ -47,10 +56,25 @@ function downloadPdf() {
           <button type="button" class="btn btn-primary" @click="downloadPdf">
             Скачать резюме PDF
           </button>
-          <RouterLink to="/#contact" class="btn btn-ghost">Связаться</RouterLink>
-          <RouterLink to="/" class="btn btn-ghost">Портфолио услуг</RouterLink>
+          <a :href="resume.portfolioUrl" class="btn btn-ghost" target="_blank" rel="noopener">Портфолио</a>
+          <a href="https://vorobjev.pro/#contact" class="btn btn-ghost">Связаться</a>
         </div>
-        <p class="print-hint no-print">В диалоге печати выберите «Сохранить как PDF».</p>
+        <p class="print-hint no-print">
+          В диалоге печати: «Сохранить как PDF». Ссылки в PDF кликабельны (портфолио, кейсы, Drive).
+        </p>
+      </div>
+    </section>
+
+    <!-- HH-style links block early for recruiters / PDF -->
+    <section class="section links-top-section">
+      <div class="container resume-doc">
+        <h2>Ссылки</h2>
+        <ul class="hh-links">
+          <li v-for="l in resume.links" :key="l.href">
+            <span class="hh-link-label">{{ l.label }}</span>
+            <a :href="l.href" target="_blank" rel="noopener">{{ l.href }}</a>
+          </li>
+        </ul>
       </div>
     </section>
 
@@ -88,8 +112,11 @@ function downloadPdf() {
               v-if="job.achievementsCta"
               class="ach-cta"
               :href="job.achievementsCta.href"
+              target="_blank"
+              rel="noopener"
             >
               {{ job.achievementsCta.label }}
+              <span class="link-url"> — {{ job.achievementsCta.href }}</span>
             </a>
           </div>
         </article>
@@ -136,16 +163,9 @@ function downloadPdf() {
           >
             <span class="drive-title">{{ d.label }}</span>
             <span v-if="d.note" class="drive-note">{{ d.note }}</span>
+            <span class="drive-url">{{ shortUrl(d.href) }}</span>
           </a>
         </div>
-
-        <h2 class="links-h">Ссылки</h2>
-        <ul class="plain-list links-list">
-          <li v-for="l in resume.links" :key="l.href">
-            <RouterLink v-if="l.href.startsWith('/')" :to="l.href">{{ l.label }}</RouterLink>
-            <a v-else :href="l.href" target="_blank" rel="noopener">{{ l.label }}</a>
-          </li>
-        </ul>
       </div>
     </section>
   </div>
@@ -182,26 +202,25 @@ function downloadPdf() {
 
 .resume-meta {
   margin: 0 0 0.35rem;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--text-muted);
-  font-family: var(--font-mono);
 }
 
 .resume-page h1 {
-  font-size: clamp(1.55rem, 3.5vw, 2rem);
   margin: 0 0 0.35rem;
-  line-height: 1.25;
+  font-size: clamp(1.6rem, 4vw, 2.1rem);
+  line-height: 1.2;
 }
 
 .resume-sub,
 .resume-format {
-  margin: 0.15rem 0;
+  margin: 0.2rem 0;
   color: var(--text-muted);
-  font-size: 0.95rem;
+  font-size: 0.98rem;
 }
 
 .resume-role {
-  margin: 0.65rem 0 0.25rem;
+  margin: 0.5rem 0 0.25rem;
   font-size: 1.15rem;
   font-weight: 600;
   color: var(--accent);
@@ -211,17 +230,22 @@ function downloadPdf() {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  padding: 1rem;
+  padding: 1rem 1.1rem;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 10px;
   font-size: 0.95rem;
 }
 
+.resume-contacts a {
+  color: var(--accent);
+  word-break: break-all;
+}
+
 .highlight-grid {
   display: grid;
-  gap: 0.65rem;
-  margin: 1.5rem 0 1rem;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
   grid-template-columns: 1fr 1fr;
 }
 
@@ -236,25 +260,26 @@ function downloadPdf() {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 10px;
-  text-align: center;
 }
 
 .highlight-value {
   font-weight: 700;
-  color: var(--accent);
   font-size: 1.05rem;
+  color: var(--accent);
+  line-height: 1.25;
 }
 
 .highlight-label {
   margin-top: 0.25rem;
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   color: var(--text-muted);
-  line-height: 1.3;
+  line-height: 1.35;
 }
 
 .resume-about {
-  margin: 0 0 1rem;
+  margin: 1.35rem 0 1rem;
   color: var(--text-muted);
+  line-height: 1.55;
   font-size: 1.02rem;
 }
 
@@ -262,39 +287,65 @@ function downloadPdf() {
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
-  margin-bottom: 1.25rem;
 }
 
 .spec-chip {
-  padding: 0.3rem 0.7rem;
+  padding: 0.28rem 0.6rem;
   border: 1px solid var(--border);
-  border-radius: 999px;
-  font-size: 0.85rem;
+  border-radius: 6px;
+  font-size: 0.82rem;
   color: var(--text-muted);
 }
 
 .resume-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 0.65rem;
+  margin-top: 1.35rem;
 }
 
 .print-hint {
   margin: 0.65rem 0 0;
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   color: var(--text-muted);
 }
 
-.resume-page h2 {
-  font-size: 1.25rem;
-  margin: 0 0 1.25rem;
-  padding-bottom: 0.5rem;
+.hh-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.hh-links li {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.65rem 0;
   border-bottom: 1px solid var(--border);
 }
 
+@media (min-width: 640px) {
+  .hh-links li {
+    grid-template-columns: 11rem 1fr;
+    align-items: baseline;
+    gap: 1rem;
+  }
+}
+
+.hh-link-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.hh-links a {
+  color: var(--accent);
+  font-size: 0.92rem;
+  word-break: break-all;
+}
+
 .job-block {
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
+  padding: 1.25rem 0;
   border-bottom: 1px solid var(--border);
 }
 
@@ -304,17 +355,9 @@ function downloadPdf() {
 
 .job-head {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 0.35rem;
-}
-
-@media (min-width: 640px) {
-  .job-head {
-    flex-direction: row;
-    justify-content: space-between;
-    gap: 1rem;
-  }
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 
 .job-block h3 {
@@ -324,59 +367,64 @@ function downloadPdf() {
 
 .job-role {
   margin: 0.25rem 0 0;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--accent);
 }
 
 .job-period {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  font-size: 0.9rem;
-  color: var(--text-muted);
-}
-
-@media (min-width: 640px) {
-  .job-period {
-    align-items: flex-end;
-    text-align: right;
-  }
+  align-items: flex-end;
+  text-align: right;
+  font-size: 0.92rem;
+  gap: 0.15rem;
 }
 
 .job-meta {
-  margin: 0 0 0.65rem;
-  font-size: 0.9rem;
+  margin: 0.45rem 0 0.65rem;
   color: var(--text-muted);
+  font-size: 0.92rem;
 }
 
 .job-block ul {
   margin: 0.5rem 0 0;
   padding-left: 1.15rem;
   color: var(--text-muted);
+  line-height: 1.5;
 }
 
 .job-achievements {
   margin-top: 0.85rem;
-  padding: 0.75rem 1rem;
-  background: rgba(91, 141, 239, 0.08);
-  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  background: var(--bg-elevated);
   border: 1px solid var(--border);
+  border-radius: 8px;
 }
 
 .ach-label {
   margin: 0 0 0.35rem;
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
   color: var(--accent);
+  font-weight: 600;
+}
+
+.job-achievements ul {
+  margin: 0;
 }
 
 .ach-cta {
   display: inline-block;
-  margin-top: 0.75rem;
-  font-weight: 500;
-  font-size: 0.95rem;
+  margin-top: 0.55rem;
+  color: var(--accent);
+  font-size: 0.92rem;
+}
+
+.link-url {
+  font-size: 0.85rem;
+  opacity: 0.85;
+  word-break: break-all;
 }
 
 .resume-muted {
@@ -395,8 +443,13 @@ function downloadPdf() {
   }
 }
 
+.resume-page h2 {
+  margin: 0 0 1rem;
+  font-size: 1.25rem;
+}
+
 .edu-block {
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.15rem;
 }
 
 .edu-block h3 {
@@ -416,12 +469,6 @@ function downloadPdf() {
 
 .skills-h {
   margin-top: 1.75rem;
-  margin-bottom: 0.75rem;
-  font-size: 1.15rem;
-}
-
-.links-h {
-  margin-top: 3.25rem;
   margin-bottom: 0.75rem;
   font-size: 1.15rem;
 }
@@ -474,11 +521,19 @@ function downloadPdf() {
   line-height: 1.4;
 }
 
-.links-list a {
-  font-size: 1rem;
+.drive-url {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  word-break: break-all;
+  margin-top: 0.15rem;
 }
 
 @media print {
+  @page {
+    size: A4;
+    margin: 12mm 14mm;
+  }
+
   .no-print {
     display: none !important;
   }
@@ -486,6 +541,13 @@ function downloadPdf() {
   .resume-page {
     color: #111 !important;
     background: #fff !important;
+    font-size: 10.5pt;
+    line-height: 1.4;
+  }
+
+  .section {
+    padding-top: 0.65rem !important;
+    padding-bottom: 0.65rem !important;
   }
 
   .resume-hero,
@@ -493,28 +555,80 @@ function downloadPdf() {
   .highlight-card,
   .resume-contacts,
   .job-achievements,
-  .drive-card {
+  .drive-card,
+  .links-top-section {
     background: #fff !important;
-    border-color: #ccc !important;
+    border-color: #c8c8c8 !important;
+  }
+
+  .resume-hero {
+    background: #fff !important;
+    border-bottom: 1px solid #bbb !important;
+    padding-top: 0 !important;
+  }
+
+  .resume-page h1 {
+    font-size: 18pt !important;
+    color: #111 !important;
+  }
+
+  .resume-page h2 {
+    font-size: 12pt !important;
+    color: #111 !important;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 0.25rem;
+    margin-top: 0.75rem;
   }
 
   .resume-role,
   .job-role,
   .highlight-value,
   .drive-title,
-  .ach-label {
-    color: #1a4a8a !important;
+  .ach-label,
+  .hh-link-label {
+    color: #0b5cab !important;
   }
 
   .resume-about,
   .muted,
   .job-block ul,
-  .drive-note {
+  .drive-note,
+  .resume-sub,
+  .resume-format,
+  .job-meta,
+  .license,
+  .plain-list,
+  .drive-url {
     color: #333 !important;
   }
 
   a {
-    color: #1a4a8a !important;
+    color: #0b5cab !important;
+    text-decoration: underline !important;
+  }
+
+  .spec-chip,
+  .tag {
+    border-color: #bbb !important;
+    color: #333 !important;
+    background: #f5f5f5 !important;
+  }
+
+  .job-block {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .drive-card {
+    break-inside: avoid;
+  }
+
+  .link-url {
+    display: inline;
+  }
+
+  .highlight-grid {
+    margin-top: 0.85rem;
   }
 }
 </style>

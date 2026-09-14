@@ -25,7 +25,7 @@ export interface ResumeDriveItem {
 }
 
 export const resume = {
-  updatedAt: '10 сентября 2026',
+  updatedAt: '14 сентября 2026',
   fullName: 'Воробьёв Александр Сергеевич',
   genderAge: 'Мужчина, 37 лет, родился 6 декабря 1988',
   phone: '+7 (910) 529-04-65',
@@ -34,6 +34,9 @@ export const resume = {
   citizenship: 'Россия, разрешение на работу: Россия',
   workFormat: 'Удалённо · полная занятость · не готов к командировкам',
   desiredRole: 'Ведущий инженер-конструктор / Инженер-конструктор',
+  portfolioUrl: 'https://vorobjev.pro',
+  telegramUrl: 'https://t.me/Alexandr_Vorobjev',
+  githubUrl: 'https://github.com/AlexPror',
   specializations: [
     'Инженер-конструктор',
     'Инженер-проектировщик',
@@ -115,8 +118,8 @@ export const resume = {
         'SolidWorks «пакет в цех»: 5–10 ч ручной подготовки → один запуск (~46 мин на 150 позиций, 6–13× быстрее).',
       ],
       achievementsCta: {
-        label: 'Смотреть материалы на Drive →',
-        href: '#examples',
+        label: 'Примеры работ (Drive и сайт)',
+        href: 'https://vorobjev.pro/resume#examples',
       },
     },
     {
@@ -188,11 +191,14 @@ export const resume = {
     'Excel',
   ],
   links: [
-    { label: 'Портфолио (услуги)', href: '/' },
+    { label: 'Портфолио (сайт)', href: 'https://vorobjev.pro/' },
+    { label: 'Резюме online', href: 'https://vorobjev.pro/resume' },
+    { label: 'Кейсы КОМПАС', href: 'https://vorobjev.pro/kompas' },
+    { label: 'Кейсы Revit', href: 'https://vorobjev.pro/revit' },
+    { label: 'Кейсы SolidWorks', href: 'https://vorobjev.pro/solidworks' },
+    { label: 'DeskReview (демо)', href: 'https://alexpror.github.io/3d_viewer_1.0/' },
     { label: 'GitHub', href: 'https://github.com/AlexPror' },
-    { label: 'КОМПАС-кейсы', href: '/kompas' },
-    { label: 'Revit-кейсы', href: '/revit' },
-    { label: 'SolidWorks-кейсы', href: '/solidworks' },
+    { label: 'Telegram', href: 'https://t.me/Alexandr_Vorobjev' },
   ],
   drive: [
     {
