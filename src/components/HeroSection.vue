@@ -1,104 +1,31 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import { RouterLink } from 'vue-router'
 import { site, heroFacts } from '@/data/content'
 import { logger } from '@/lib/logger'
 import BlueprintBackground from '@/components/BlueprintBackground.vue'
 
-/** Unit cube corners: x,y,z in [-1, 1] */
-const VERTS: [number, number, number][] = [
-  [-1, -1, -1],
-  [1, -1, -1],
-  [1, 1, -1],
-  [-1, 1, -1],
-  [-1, -1, 1],
-  [1, -1, 1],
-  [1, 1, 1],
-  [-1, 1, 1],
-]
-
-const EDGES: [number, number][] = [
-  [0, 1],
-  [1, 2],
-  [2, 3],
-  [3, 0],
-  [4, 5],
-  [5, 6],
-  [6, 7],
-  [7, 4],
-  [0, 4],
-  [1, 5],
-  [2, 6],
-  [3, 7],
-]
-
-const projected = ref<{ x: number; y: number }[]>(
-  VERTS.map(() => ({ x: 0, y: 0 })),
-)
-
-const segments = computed(() =>
-  EDGES.map(([a, b]) => ({
-    x1: projected.value[a].x,
-    y1: projected.value[a].y,
-    x2: projected.value[b].x,
-    y2: projected.value[b].y,
-  })),
-)
+const faces = [
+  { key: 'front', label: 'Revit', to: '/revit', className: 'face-front' },
+  { key: 'right', label: 'SolidWorks', to: '/solidworks', className: 'face-right' },
+  { key: 'left', label: 'КОМПАС', to: '/kompas', className: 'face-left' },
+] as const
 
 const reducedMotion = ref(false)
-let heroEl: HTMLElement | null = null
-let raf = 0
-let tx = 0
-let ty = 0
-let cx = 0
-let cy = 0
-let spin = 0
+const cubeOpen = ref(false)
 
-function project() {
-  const yaw = ((-32 + cx + spin) * Math.PI) / 180
-  const pitch = ((22 + cy) * Math.PI) / 180
-  const cosY = Math.cos(yaw)
-  const sinY = Math.sin(yaw)
-  const cosX = Math.cos(pitch)
-  const sinX = Math.sin(pitch)
-  const scale = 58
-  const cx0 = 100
-  const cy0 = 92
-
-  projected.value = VERTS.map(([x, y, z]) => {
-    // yaw (Y), then pitch (X)
-    const x1 = x * cosY + z * sinY
-    const z1 = -x * sinY + z * cosY
-    const y1 = y * cosX - z1 * sinX
-    const z2 = y * sinX + z1 * cosX
-    const persp = 3.2 / (3.2 + z2)
-    return {
-      x: cx0 + x1 * scale * persp,
-      y: cy0 + y1 * scale * persp,
-    }
-  })
-}
-
-function tick() {
-  cx += (tx - cx) * 0.08
-  cy += (ty - cy) * 0.08
-  if (!reducedMotion.value) spin += 0.35
-  project()
-  raf = requestAnimationFrame(tick)
-}
-
-function onPointerMove(e: PointerEvent) {
-  if (reducedMotion.value || !heroEl) return
+function onCubeEnter(e: PointerEvent) {
+  if (reducedMotion.value) return
   if (e.pointerType === 'touch') return
-  const rect = heroEl.getBoundingClientRect()
-  const nx = (e.clientX - rect.left) / rect.width - 0.5
-  const ny = (e.clientY - rect.top) / rect.height - 0.5
-  tx = nx * 18
-  ty = ny * -14
+  cubeOpen.value = true
 }
 
-function onPointerLeave() {
-  tx = 0
-  ty = 0
+function onCubeLeave() {
+  cubeOpen.value = false
+}
+
+function onFaceClick(label: string, to: string) {
+  logger.debug('hero cube face', { label, to })
 }
 
 function ctaContact() {
@@ -107,19 +34,6 @@ function ctaContact() {
 
 onMounted(() => {
   reducedMotion.value = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  heroEl = document.querySelector('.hero')
-  project()
-  raf = requestAnimationFrame(tick)
-  if (heroEl) {
-    heroEl.addEventListener('pointermove', onPointerMove)
-    heroEl.addEventListener('pointerleave', onPointerLeave)
-  }
-})
-
-onUnmounted(() => {
-  cancelAnimationFrame(raf)
-  heroEl?.removeEventListener('pointermove', onPointerMove)
-  heroEl?.removeEventListener('pointerleave', onPointerLeave)
 })
 </script>
 
@@ -139,36 +53,30 @@ onUnmounted(() => {
           <a href="#contact" class="btn btn-ghost" @click="ctaContact">Оставить заявку</a>
         </div>
       </div>
-      <div class="hero-visual" aria-hidden="true">
-        <div class="cube-stage">
-          <svg class="wire-cube-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <radialGradient id="cube-glow" cx="50%" cy="45%" r="55%">
-                <stop offset="0%" stop-color="rgba(74,168,255,0.14)" />
-                <stop offset="100%" stop-color="rgba(74,168,255,0)" />
-              </radialGradient>
-            </defs>
-            <ellipse cx="100" cy="168" rx="62" ry="14" fill="url(#cube-glow)" />
-            <g class="cube-edges" fill="none" stroke="currentColor" stroke-linecap="round">
-              <line
-                v-for="(s, i) in segments"
-                :key="i"
-                :x1="s.x1"
-                :y1="s.y1"
-                :x2="s.x2"
-                :y2="s.y2"
-                stroke-width="1.6"
-              />
-            </g>
-            <circle
-              v-for="(p, i) in projected"
-              :key="'v' + i"
-              :cx="p.x"
-              :cy="p.y"
-              r="1.8"
-              class="cube-vertex"
-            />
-          </svg>
+      <div class="hero-visual">
+        <div
+          class="cube-stage"
+          :class="{ open: cubeOpen, 'no-spin': reducedMotion || cubeOpen }"
+          @pointerenter="onCubeEnter"
+          @pointerleave="onCubeLeave"
+        >
+          <div class="cube" role="navigation" aria-label="Платформы CAD">
+            <RouterLink
+              v-for="f in faces"
+              :key="f.key"
+              :to="f.to"
+              class="face"
+              :class="f.className"
+              :title="`${f.label} — кейсы`"
+              @click="onFaceClick(f.label, f.to)"
+            >
+              <span class="face-label">{{ f.label }}</span>
+            </RouterLink>
+            <div class="face face-top" aria-hidden="true" />
+            <div class="face face-bottom" aria-hidden="true" />
+            <div class="face face-back" aria-hidden="true" />
+          </div>
+          <p class="cube-hint">Наведите · выберите платформу</p>
         </div>
       </div>
     </div>
@@ -181,3 +89,159 @@ onUnmounted(() => {
     </div>
   </section>
 </template>
+
+<style scoped>
+.cube-stage {
+  --cube: 120px;
+  --half: 60px;
+  --gap: 0px;
+  position: relative;
+  width: min(240px, 52vw);
+  height: min(240px, 52vw);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 640px;
+  perspective-origin: 50% 45%;
+}
+
+.cube-stage.open {
+  --gap: 12px;
+}
+
+.cube {
+  position: relative;
+  width: var(--cube);
+  height: var(--cube);
+  transform-style: preserve-3d;
+  transform: rotateX(-22deg) rotateY(-32deg);
+  animation: cube-spin 16s linear infinite;
+}
+
+.cube-stage.no-spin .cube {
+  animation-play-state: paused;
+}
+
+.cube-stage.no-spin:not(.open) .cube {
+  /* reduced motion: readable static angle */
+  transform: rotateX(-18deg) rotateY(-28deg);
+}
+
+@keyframes cube-spin {
+  from {
+    transform: rotateX(-22deg) rotateY(-32deg);
+  }
+  to {
+    transform: rotateX(-22deg) rotateY(328deg);
+  }
+}
+
+.face {
+  position: absolute;
+  width: var(--cube);
+  height: var(--cube);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border: 1px solid rgba(74, 168, 255, 0.55);
+  background: rgba(28, 35, 48, 0.92);
+  color: var(--accent);
+  text-decoration: none;
+  backface-visibility: hidden;
+  transition:
+    transform 0.32s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+a.face:hover,
+a.face:focus-visible {
+  border-color: var(--accent);
+  background: rgba(34, 48, 68, 0.98);
+  box-shadow: inset 0 0 0 1px rgba(74, 168, 255, 0.25);
+  color: #7ec4ff;
+  outline: none;
+}
+
+.face-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
+  line-height: 1.2;
+  padding: 0.35rem;
+  pointer-events: none;
+  user-select: none;
+}
+
+.face-right .face-label {
+  font-size: 0.56rem;
+  letter-spacing: 0.06em;
+}
+
+.face-top,
+.face-bottom,
+.face-back {
+  pointer-events: none;
+  background: rgba(22, 27, 36, 0.88);
+  border-color: rgba(74, 168, 255, 0.28);
+}
+
+.face-front {
+  transform: rotateY(0deg) translateZ(calc(var(--half) + var(--gap)));
+}
+
+.face-back {
+  transform: rotateY(180deg) translateZ(calc(var(--half) + var(--gap)));
+}
+
+.face-right {
+  transform: rotateY(90deg) translateZ(calc(var(--half) + var(--gap)));
+}
+
+.face-left {
+  transform: rotateY(-90deg) translateZ(calc(var(--half) + var(--gap)));
+}
+
+.face-top {
+  transform: rotateX(90deg) translateZ(calc(var(--half) + var(--gap)));
+}
+
+.face-bottom {
+  transform: rotateX(-90deg) translateZ(calc(var(--half) + var(--gap)));
+}
+
+.cube-hint {
+  position: absolute;
+  bottom: 0.35rem;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  width: max-content;
+  max-width: 100%;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  opacity: 0.75;
+  text-align: center;
+  pointer-events: none;
+}
+
+@media (max-width: 519px) {
+  .cube-hint {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cube {
+    animation: none !important;
+  }
+}
+</style>
