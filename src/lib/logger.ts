@@ -29,6 +29,7 @@ function persist(entry: LogEntry): void {
 async function ship(entry: LogEntry): Promise<void> {
   if (!isDev) return
   try {
+    const meta = entry.meta ?? {}
     await fetch('/api/client-log', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -39,10 +40,18 @@ async function ship(entry: LogEntry): Promise<void> {
           url: entry.url,
           userAgent: entry.userAgent,
           ts: entry.ts,
-          // не отправляем произвольные meta с формы / стеками целиком
-          ...(entry.meta && 'length' in entry.meta ? { length: entry.meta.length } : {}),
-          ...(entry.meta && 'path' in entry.meta ? { path: entry.meta.path } : {}),
-          ...(entry.meta && 'name' in entry.meta ? { name: entry.meta.name } : {}),
+          ...(typeof meta.length === 'number' ? { length: meta.length } : {}),
+          ...(typeof meta.path === 'string' ? { path: meta.path } : {}),
+          ...(typeof meta.name === 'string' ? { name: meta.name } : {}),
+          ...(typeof meta.origin === 'string' ? { origin: meta.origin } : {}),
+          ...(typeof meta.hasKey === 'boolean' ? { hasKey: meta.hasKey } : {}),
+          ...(typeof meta.mode === 'string' ? { mode: meta.mode } : {}),
+          ...(typeof meta.status === 'number' ? { status: meta.status } : {}),
+          ...(typeof meta.success === 'boolean' ? { success: meta.success } : {}),
+          ...(typeof meta.apiMessage === 'string' ? { apiMessage: String(meta.apiMessage).slice(0, 200) } : {}),
+          ...(typeof meta.msg === 'string' ? { msg: String(meta.msg).slice(0, 200) } : {}),
+          ...(typeof meta.isCors === 'boolean' ? { isCors: meta.isCors } : {}),
+          ...(typeof meta.raw === 'string' ? { raw: String(meta.raw).slice(0, 200) } : {}),
         },
       }),
       keepalive: true,
@@ -62,14 +71,11 @@ function write(level: LogLevel, message: string, meta?: Record<string, unknown>)
     userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
   }
 
-  if (isDev) {
-    const prefix = `[portfolio:${level}]`
-    if (level === 'error') console.error(prefix, message, meta ?? '')
-    else if (level === 'warn') console.warn(prefix, message, meta ?? '')
-    else console.log(prefix, message, meta ?? '')
-  } else if (level === 'error') {
-    console.error(`[portfolio]`, message)
-  }
+  const prefix = `[portfolio:${level}]`
+  if (level === 'error') console.error(prefix, message, meta ?? '')
+  else if (isDev && level === 'warn') console.warn(prefix, message, meta ?? '')
+  else if (isDev) console.log(prefix, message, meta ?? '')
+  else if (message.startsWith('contact form')) console.info(prefix, message, meta ?? '')
 
   persist(entry)
   void ship(entry)

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { site, platformOptions } from '@/data/content'
 import { logger } from '@/lib/logger'
 
@@ -25,6 +25,7 @@ const message = ref('')
 const sending = ref(false)
 const sent = ref(false)
 const error = ref('')
+const formEl = ref<HTMLFormElement | null>(null)
 
 watch(
   () => props.initialPlatform,
@@ -33,96 +34,150 @@ watch(
   },
 )
 
+onMounted(() => {
+  const params = new URLSearchParams(location.search)
+  if (params.get('sent') === '1') {
+    sent.value = true
+    logger.info('contact form returned after redirect', { origin: location.origin })
+    params.delete('sent')
+    const q = params.toString()
+    const next = `${location.pathname}${q ? `?${q}` : ''}${location.hash || '#contact'}`
+    history.replaceState({}, '', next)
+  }
+})
+
 function platformLabel(value: string) {
   return platformOptions.find((o) => o.value === value)?.label ?? ''
 }
 
-async function submit() {
+const composedMessage = computed(() => {
+  const text = message.value.trim()
+  const plat = platformLabel(platform.value)
+  return plat && plat !== 'Не выбрано' ? `Платформа: ${plat}\n\n${text}` : text
+})
+
+const redirectUrl = computed(() => {
+  if (typeof location === 'undefined') return 'https://vorobjev.pro/?sent=1#contact'
+  return `${location.origin}${location.pathname}?sent=1#contact`
+})
+
+function validate(): boolean {
   error.value = ''
   sent.value = false
 
-  const text = message.value.trim()
-  const fromName = name.value.trim()
-  const fromEmail = email.value.trim()
-  const plat = platformLabel(platform.value)
-
-  if (fromName.length < 2) {
+  if (name.value.trim().length < 2) {
     error.value = 'Укажите имя.'
-    return
+    return false
   }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fromEmail)) {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) {
     error.value = 'Укажите корректный email.'
-    return
+    return false
   }
-  if (text.length < 10) {
+  if (message.value.trim().length < 10) {
     error.value = 'Опишите задачу хотя бы в нескольких предложениях.'
-    logger.warn('contact validation failed', { length: text.length })
-    return
+    logger.warn('contact validation failed', { length: message.value.trim().length })
+    return false
   }
+  return true
+}
 
+/** Запасной путь без CORS: FormSubmit ajax */
+async function submitViaFormSubmit(fullMessage: string) {
+  const res = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(site.contact.email)}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({
+      name: name.value.trim(),
+      email: email.value.trim(),
+      message: fullMessage,
+      _subject: 'Заявка с сайта CAD · BIM · Production',
+    }),
+  })
+  const raw = await res.text()
+  logger.info('contact form response', { status: res.status, raw: raw.slice(0, 200), mode: 'formsubmit' })
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  sent.value = true
+  message.value = ''
+  name.value = ''
+  email.value = ''
+  if (!props.hidePlatformSelect) platform.value = props.initialPlatform || ''
+}
+
+async function submit(e: Event) {
+  e.preventDefault()
+  if (!validate()) return
+
+  const origin = location.origin
+  const hasKey = Boolean(site.web3formsKey)
   sending.value = true
-  logger.info('contact form submit', { length: text.length, platform: platform.value })
 
-  const fullMessage = plat && plat !== 'Не выбрано' ? `Платформа: ${plat}\n\n${text}` : text
+  logger.info('contact form submit', {
+    length: message.value.trim().length,
+    platform: platform.value,
+    origin,
+    hasKey,
+    mode: hasKey ? 'web3forms-native' : 'formsubmit',
+  })
 
   try {
-    if (site.web3formsKey) {
-      const res = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({
-          access_key: site.web3formsKey,
-          subject: 'Заявка с сайта CAD · BIM · Production',
-          name: fromName,
-          email: fromEmail,
-          message: fullMessage,
-        }),
-      })
-      const data = (await res.json()) as { success?: boolean; message?: string }
-      if (!res.ok || !data.success) {
-        throw new Error(data.message || 'Ошибка отправки')
-      }
-    } else {
-      const res = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(site.contact.email)}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({
-          name: fromName,
-          email: fromEmail,
-          message: fullMessage,
-          _subject: 'Заявка с сайта CAD · BIM · Production',
-        }),
-      })
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`)
-      }
+    if (site.web3formsKey && formEl.value) {
+      // Обычный HTML POST — без fetch/CORS. Web3Forms вернёт на redirectUrl с ?sent=1.
+      logger.info('contact form native post', { redirect: redirectUrl.value })
+      formEl.value.submit()
+      return
     }
 
-    sent.value = true
-    message.value = ''
-    name.value = ''
-    email.value = ''
-    if (!props.hidePlatformSelect) platform.value = props.initialPlatform || ''
-    logger.info('contact form sent ok')
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e)
-    error.value = 'Не удалось отправить. Напишите в Telegram или на email.'
-    logger.error('contact form failed', { msg })
+    await submitViaFormSubmit(composedMessage.value)
+    logger.info('contact form sent ok', { origin, mode: 'formsubmit' })
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    const isCors =
+      /Failed to fetch|NetworkError|CORS|Load failed/i.test(msg) ||
+      (err instanceof TypeError && msg.toLowerCase().includes('fetch'))
+    error.value = isCors
+      ? 'Не удалось отправить из браузера (сеть/CORS). Напишите в Telegram или на email.'
+      : `Не удалось отправить: ${msg}. Напишите в Telegram или на email.`
+    logger.error('contact form failed', { msg, origin, hasKey, isCors })
   } finally {
+    // native submit уходит со страницы — finally всё равно сработает до unload
     sending.value = false
   }
 }
 </script>
 
 <template>
-  <form class="contact-form" :class="{ compact }" @submit.prevent="submit">
+  <form
+    ref="formEl"
+    class="contact-form"
+    :class="{ compact }"
+    action="https://api.web3forms.com/submit"
+    method="POST"
+    @submit="submit"
+  >
+    <input v-if="site.web3formsKey" type="hidden" name="access_key" :value="site.web3formsKey" />
+    <input type="hidden" name="subject" value="Заявка с сайта CAD · BIM · Production" />
+    <input type="hidden" name="from_name" :value="name.trim()" />
+    <input type="hidden" name="replyto" :value="email.trim()" />
+    <input type="hidden" name="redirect" :value="redirectUrl" />
+    <input type="hidden" name="message" :value="composedMessage" />
+    <!-- honeypot -->
+    <input type="checkbox" name="botcheck" class="botcheck" tabindex="-1" autocomplete="off" />
+
     <label :for="`${idPrefix}-name`">Имя</label>
-    <input :id="`${idPrefix}-name`" v-model="name" type="text" autocomplete="name" placeholder="Иван" />
+    <input
+      :id="`${idPrefix}-name`"
+      v-model="name"
+      name="name"
+      type="text"
+      autocomplete="name"
+      placeholder="Иван"
+    />
 
     <label :for="`${idPrefix}-email`">Email</label>
     <input
       :id="`${idPrefix}-email`"
       v-model="email"
+      name="email"
       type="email"
       autocomplete="email"
       placeholder="you@company.ru"
@@ -159,7 +214,16 @@ async function submit() {
   flex-direction: column;
 }
 
-.contact-form input,
+.botcheck {
+  position: absolute;
+  left: -9999px;
+  opacity: 0;
+  height: 0;
+  width: 0;
+  pointer-events: none;
+}
+
+.contact-form input:not(.botcheck),
 .contact-select,
 .contact-form textarea {
   padding: 0.85rem 1rem;
@@ -204,7 +268,7 @@ async function submit() {
   color: var(--text-muted);
 }
 
-.contact-form label:first-child {
+.contact-form label:first-of-type {
   margin-top: 0;
 }
 
