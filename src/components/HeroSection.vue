@@ -22,11 +22,12 @@ type Face = {
 }
 
 const FACES: Face[] = [
+  // Opposite pairs share a platform; default corner (front+right+top) shows all three
   { id: 'front', label: 'Revit', to: '/revit', faceClass: 'face-front' },
   { id: 'back', label: 'Revit', to: '/revit', faceClass: 'face-back' },
   { id: 'right', label: 'SolidWorks', to: '/solidworks', faceClass: 'face-right' },
-  { id: 'left', label: 'КОМПАС 3D', to: '/kompas', faceClass: 'face-left' },
-  { id: 'top', label: 'SolidWorks', to: '/solidworks', faceClass: 'face-top' },
+  { id: 'left', label: 'SolidWorks', to: '/solidworks', faceClass: 'face-left' },
+  { id: 'top', label: 'КОМПАС 3D', to: '/kompas', faceClass: 'face-top' },
   { id: 'bottom', label: 'КОМПАС 3D', to: '/kompas', faceClass: 'face-bottom' },
 ]
 
@@ -39,13 +40,16 @@ const PLATFORMS = [
 const ZOOM_MIN = 1
 const ZOOM_MAX = 1.85
 const HALF = 60 // px — half of face size (120px)
+/** Corner toward camera: atan(1/√2) ≈ 35.264°, yaw 45° */
+const VERTEX_PITCH = -35.264
+const VERTEX_YAW = 45
 
 const reducedMotion = ref(false)
 const cubeOpen = ref(false)
 const dragging = ref(false)
 const stageRef = ref<HTMLElement | null>(null)
-const yawRef = ref(-28)
-const pitchRef = ref(-22)
+const yawRef = ref(VERTEX_YAW)
+const pitchRef = ref(VERTEX_PITCH)
 const rollRef = ref(0)
 const explodeRef = ref(0)
 const zoomRef = ref(1)
@@ -55,8 +59,8 @@ let raf = 0
 let lastX = 0
 let lastY = 0
 let lastTs = 0
-let yaw = -28
-let pitch = -22
+let yaw = VERTEX_YAW
+let pitch = VERTEX_PITCH
 let roll = 0
 let explode = 0
 let explodeTarget = 0
@@ -97,8 +101,8 @@ function tick(ts: number) {
     const blend = 1 - Math.exp(-1.2 * dt)
     yawVel += (yawVelTarget - yawVel) * blend
     yaw += yawVel * dt
-    // Hold a readable three-face tilt; roll settles after MMB
-    pitch += (-22 - pitch) * Math.min(1, 1.6 * dt)
+    // Keep vertex-toward-camera tilt; roll settles after MMB
+    pitch += (VERTEX_PITCH - pitch) * Math.min(1, 1.6 * dt)
     roll += (0 - roll) * Math.min(1, 1.6 * dt)
   }
 
