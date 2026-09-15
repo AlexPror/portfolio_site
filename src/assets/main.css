@@ -412,7 +412,9 @@ p {
 .hero {
   position: relative;
   padding-top: 2rem;
-  overflow: hidden;
+  /* overflow:hidden flattens CSS preserve-3d — clip-x only */
+  overflow-x: clip;
+  overflow-y: visible;
   background: var(--bg);
 }
 
@@ -465,6 +467,7 @@ p {
 .hero-visual {
   min-height: 160px;
   display: none;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
 }
@@ -472,20 +475,20 @@ p {
 @media (min-width: 600px) {
   .hero-visual {
     display: flex;
-    min-height: 220px;
+    min-height: 260px;
   }
 }
 
 @media (min-width: 900px) {
   .hero-visual {
-    min-height: 280px;
+    min-height: 300px;
   }
 }
 
 .cube-stage {
   position: relative;
-  width: min(240px, 52vw);
-  height: min(240px, 52vw);
+  width: min(220px, 52vw);
+  height: min(200px, 48vw);
   display: flex;
   align-items: center;
   justify-content: center;
