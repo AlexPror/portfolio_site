@@ -70,7 +70,7 @@ onUnmounted(() => {
       </nav>
 
       <a :href="hashHref('#contact')" class="btn btn-primary btn-sm header-cta" @click="navClick('cta')">
-        Заявка
+        Написать
       </a>
 
       <button
@@ -113,7 +113,7 @@ onUnmounted(() => {
       <a :href="hashHref('#deskreview')" @click="navClick('deskreview')">DeskReview</a>
       <RouterLink to="/resume" @click="navClick('resume')">Резюме</RouterLink>
       <a :href="hashHref('#contact')" class="btn btn-primary nav-mobile-cta" @click="navClick('contact')">
-        Оставить заявку
+        Написать
       </a>
     </nav>
   </header>

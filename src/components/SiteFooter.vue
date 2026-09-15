@@ -6,8 +6,8 @@ import { site, techStack } from '@/data/content'
   <footer class="site-footer">
     <div class="container footer-inner">
       <p class="footer-note">
-        {{ site.author }} — разработка ПО для инженерии и производства.
-        Проекты для промышленных заказчиков; бренды и данные объектов не публикуются.
+        {{ site.author }} — заказные инструменты вокруг CAD и BIM.
+        Проекты для промышленных заказчиков; названия компаний и данные объектов не публикуются.
       </p>
       <div class="footer-nav">
         <RouterLink to="/kompas">КОМПАС</RouterLink>

@@ -3,7 +3,6 @@ import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { getPlatform, platforms } from '@/data/platforms'
 import ContactSection from '@/components/ContactSection.vue'
-import { site } from '@/data/content'
 
 const route = useRoute()
 const platform = computed(() => getPlatform(String(route.params.slug || '')))
@@ -131,7 +130,7 @@ const cssVars = computed(() => {
         <div class="section-head center">
           <p class="eyebrow">Услуги</p>
           <h2>Ориентиры</h2>
-          <p class="section-lead">Смета — после разбора. Прототип обычно 2–6 недель.</p>
+          <p class="section-lead">Смета — после разбора. Прототип обычно занимает 2–6 недель.</p>
         </div>
         <div class="offers-grid">
           <article v-for="o in platform.offers" :key="o.title" class="offer-card">
@@ -151,7 +150,7 @@ const cssVars = computed(() => {
       hide-platform-select
       :id-prefix="`plat-${platform.id}`"
       :heading="`Заявка по ${platform.navLabel}`"
-      :lead="`${site.author}. Задача по ${platform.brand}: процесс, форматы, срок.`"
+      :lead="platform.applicationLead"
     />
 
     <section class="section other-platforms">
@@ -413,8 +412,8 @@ const cssVars = computed(() => {
 }
 
 .offers-section {
-  background: var(--bg-elevated);
-  border-block: 1px solid var(--border);
+  background: var(--bg);
+  border-block: none;
 }
 
 .offers-grid {
@@ -429,10 +428,14 @@ const cssVars = computed(() => {
 }
 
 .offer-card {
-  padding: 1.2rem;
-  background: var(--bg-card);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1.5rem;
+  background: var(--bg-elevated);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius-card);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
 }
 
 .offer-card h3 {
@@ -444,11 +447,13 @@ const cssVars = computed(() => {
   margin: 0;
   color: var(--text-muted);
   font-size: 0.95rem;
+  flex: 1;
 }
 
 .offer-from {
-  display: inline-block;
-  margin-top: 0.85rem;
+  display: block;
+  margin-top: auto;
+  padding-top: 1rem;
   font-weight: 600;
   color: var(--accent);
 }

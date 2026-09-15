@@ -7,9 +7,9 @@ import { platforms } from '@/data/platforms'
     <div class="container">
       <div class="section-head center">
         <p class="eyebrow">Платформы</p>
-        <h2>Выберите свою CAD</h2>
+        <h2>Выберите программу — посмотрим, что можно ускорить</h2>
         <p class="section-lead">
-          Отдельные страницы с кейсами, сроками и формой заявки — без лишнего шума про другие системы.
+          Это не витрина готовых продуктов. Это вход в разговор о заказе: внутри — примеры работ и заявка.
         </p>
       </div>
       <div class="hub-grid">
@@ -23,7 +23,7 @@ import { platforms } from '@/data/platforms'
           <span class="hub-brand">{{ p.brand }}</span>
           <h3>{{ p.title }}</h3>
           <p>{{ p.subtitle }}</p>
-          <span class="hub-cta">Смотреть кейсы →</span>
+          <span class="hub-cta">Подробнее →</span>
         </RouterLink>
       </div>
     </div>
@@ -32,8 +32,8 @@ import { platforms } from '@/data/platforms'
 
 <style scoped>
 .platforms-hub {
-  background: var(--bg-elevated);
-  border-block: 1px solid var(--border);
+  background: var(--bg);
+  border-block: none;
 }
 
 .platforms-hub .section-head {
@@ -55,29 +55,34 @@ import { platforms } from '@/data/platforms'
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 1.35rem 1.4rem;
-  background: var(--bg-card);
+  padding: 1.85rem 1.6rem;
+  background: var(--bg-elevated);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius-card);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
   color: inherit;
   text-decoration: none;
-  transition: border-color 0.2s, transform 0.15s;
-  min-height: 11rem;
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+  min-height: 12rem;
 }
 
 .hub-card:hover {
   border-color: var(--accent);
-  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.06);
+  background: var(--bg-elevated);
   color: inherit;
 }
 
 .hub-brand {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-transform: none;
   color: var(--accent);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.65rem;
 }
 
 .hub-card h3 {

@@ -24,7 +24,7 @@ function consultClick(where: string) {
     <div class="container">
       <div class="section-head">
         <p class="eyebrow">Услуги и цены</p>
-        <h2>Разработка под ваше ТЗ</h2>
+        <h2>Разработка под Ваше ТЗ</h2>
         <p class="section-lead">{{ servicesIntro }}</p>
       </div>
 
@@ -60,8 +60,8 @@ function consultClick(where: string) {
         <div class="pricing-row" role="tabpanel">
           <div v-for="p in activePrices" :key="p.label" class="pricing-card">
             <span class="pricing-label">{{ p.label }}</span>
-            <span class="pricing-value">{{ p.value }}</span>
             <span v-if="p.note" class="pricing-note">{{ p.note }}</span>
+            <span class="pricing-value">{{ p.value }}</span>
           </div>
         </div>
         <p class="pricing-footnote">{{ pricingNote }}</p>
@@ -122,7 +122,7 @@ function consultClick(where: string) {
 }
 
 .service-card:hover .service-link {
-  color: #6cb8ff;
+  color: var(--accent-dim);
 }
 
 .consult-actions {
@@ -184,7 +184,7 @@ function consultClick(where: string) {
 }
 
 .price-tab.active {
-  color: #0a121c;
+  color: #fff;
   background: var(--accent);
   border-color: var(--accent);
 }

@@ -11,12 +11,12 @@ function openDemo() {
   <section id="deskreview" class="section deskreview-section">
     <div class="container">
       <div class="section-head">
-        <p class="eyebrow">Демонстрация уровня</p>
-        <h2>DeskReview 1.0 — PDF и 3D в браузере</h2>
+        <p class="eyebrow">Пример уровня</p>
+        <h2>DeskReview — чертёж и 3D-модель рядом в браузере</h2>
         <p class="section-lead">
-          Отдельный продукт: ревью чертежей и моделей без CAD. Типовая проверка комплекта —
-          ориентир в 2–3 раза быстрее за счёт режима «рядом» и без холодного старта CAD.
-          Основная услуга — заказные плагины; DeskReview показывает, как делаю веб-инструменты для инженеров.
+          Открывается в браузере, без установки CAD. Так можно согласовать комплект быстрее.
+          Это демонстрация, на что способен веб-инструмент; заказать можно похожее под Ваш процесс —
+          или инструмент прямо для Revit, КОМПАС или SolidWorks.
         </p>
       </div>
       <div class="deskreview-panel">
@@ -71,7 +71,7 @@ function openDemo() {
         >
           Открыть демо →
         </a>
-        <a href="#contact" class="btn btn-primary">Заказать разработку</a>
+        <a href="#contact" class="btn btn-primary">Хочу такой же под нас</a>
       </div>
     </div>
   </section>
@@ -83,11 +83,6 @@ function openDemo() {
   text-decoration: none;
   color: inherit;
   border-radius: 12px;
-  transition: border-color 0.2s, transform 0.15s;
-}
-
-.demo-preview:hover {
-  transform: translateY(-2px);
 }
 
 .demo-preview-inner {
@@ -95,6 +90,7 @@ function openDemo() {
   border-radius: 12px;
   overflow: hidden;
   background: var(--bg-card);
+  transition: border-color 0.2s ease;
 }
 
 .demo-preview:hover .demo-preview-inner {
@@ -106,7 +102,7 @@ function openDemo() {
   align-items: center;
   gap: 6px;
   padding: 10px 12px;
-  background: #0f1218;
+  background: #e8e8ed;
   border-bottom: 1px solid var(--border);
 }
 

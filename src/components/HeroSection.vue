@@ -65,20 +65,20 @@ let roll = 0
 let explode = 0
 let explodeTarget = 0
 let zoom = 1
-let yawVel = 8
-let yawVelTarget = 8
+let yawVel = 3.2
+let yawVelTarget = 3.2
 let nextSteerAt = 0
 
 function pickRandomSpin() {
   const s = () => (Math.random() < 0.5 ? -1 : 1)
   // Auto: gentle yaw only — full tumble is MMB-only
-  yawVelTarget = s() * (5 + Math.random() * 6)
-  nextSteerAt = performance.now() + 14000 + Math.random() * 12000
+  yawVelTarget = s() * (2.2 + Math.random() * 2.2)
+  nextSteerAt = performance.now() + 20000 + Math.random() * 16000
 }
 
 function syncOpen() {
   cubeOpen.value = hovering || dragging.value
-  explodeTarget = cubeOpen.value ? 22 : 0
+  explodeTarget = cubeOpen.value ? 14 : 0
 }
 
 const cubeStyle = computed(() => ({
@@ -199,15 +199,15 @@ onUnmounted(() => {
     <BlueprintBackground />
     <div class="container hero-grid">
       <div class="hero-copy">
-        <p class="eyebrow">CAD · BIM · Production</p>
+        <p class="eyebrow">CAD · BIM · производство</p>
         <h1>{{ site.tagline }}</h1>
         <p class="lead">{{ site.subtitle }}</p>
         <p class="hero-trust">
-          {{ site.author }} · {{ site.experience }} · {{ site.location }}
+          {{ site.author }} · {{ site.location }}
         </p>
         <div class="hero-actions">
-          <a href="#platforms" class="btn btn-primary" @click="ctaContact">Выбрать платформу</a>
-          <a href="#contact" class="btn btn-ghost" @click="ctaContact">Оставить заявку</a>
+          <a href="#platforms" class="btn btn-primary" @click="ctaContact">Выбрать программу</a>
+          <a href="#contact" class="btn btn-ghost" @click="ctaContact">Обсудить задачу →</a>
         </div>
       </div>
 
@@ -251,7 +251,7 @@ onUnmounted(() => {
             {{ p.label }}
           </router-link>
         </div>
-        <p class="cube-hint">Наведите · СКМ — вращение · клик — платформа</p>
+          <p class="cube-hint">Наведите · клик по грани · СКМ вращает</p>
       </div>
     </div>
 
@@ -317,32 +317,32 @@ onUnmounted(() => {
   justify-content: center;
   margin: 0;
   padding: 0.5rem;
-  border: 1px solid rgba(158, 199, 240, 0.75);
-  background: #24344c;
-  color: #eaf4ff;
-  box-shadow: inset 0 0 0 1px rgba(12, 20, 32, 0.35);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: #ffffff;
+  color: #1d1d1f;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   cursor: pointer;
   outline: none;
   font: inherit;
   transition:
-    background 0.15s ease,
-    border-color 0.15s ease;
+    background 0.25s ease,
+    border-color 0.25s ease;
 }
 
 .face:hover,
 .face:focus-visible {
-  background: #334a68;
-  border-color: #b8dcff;
+  background: #f5f5f7;
+  border-color: rgba(0, 113, 227, 0.45);
 }
 
 .face-label {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-transform: none;
   text-align: center;
   line-height: 1.15;
   pointer-events: none;
@@ -374,7 +374,7 @@ onUnmounted(() => {
   width: 70%;
   height: 14px;
   transform: translateX(-50%);
-  background: radial-gradient(ellipse at center, rgba(74, 168, 255, 0.22), transparent 70%);
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.1), transparent 70%);
   pointer-events: none;
 }
 
@@ -386,14 +386,15 @@ onUnmounted(() => {
 }
 
 .cube-chip {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  letter-spacing: -0.01em;
+  text-transform: none;
   color: var(--text-muted);
   text-decoration: none;
   border: 1px solid var(--border);
   padding: 0.28rem 0.55rem;
+  border-radius: 980px;
   transition:
     color 0.15s ease,
     border-color 0.15s ease,
@@ -402,17 +403,17 @@ onUnmounted(() => {
 
 .cube-chip:hover {
   color: var(--text);
-  border-color: rgba(158, 199, 240, 0.55);
-  background: rgba(36, 52, 76, 0.55);
+  border-color: var(--accent);
+  background: rgba(0, 113, 227, 0.06);
 }
 
 .cube-hint {
   margin: 0;
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.04em;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  letter-spacing: -0.01em;
   color: var(--text-muted);
-  opacity: 0.75;
+  opacity: 0.8;
   text-align: center;
 }
 

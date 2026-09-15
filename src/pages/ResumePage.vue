@@ -177,7 +177,7 @@ function shortUrl(href: string) {
 }
 
 .resume-hero {
-  background: linear-gradient(180deg, #1a2230 0%, var(--bg) 100%);
+  background: var(--bg);
   border-bottom: 1px solid var(--border);
   padding-top: 2rem;
   padding-bottom: 2rem;

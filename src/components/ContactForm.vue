@@ -138,16 +138,17 @@ async function submit() {
     </template>
 
     <label :for="`${idPrefix}-msg`">Задача</label>
+    <p class="field-hint">Можно списком — чем конкретнее, тем быстрее ответим со сметой.</p>
     <textarea
       :id="`${idPrefix}-msg`"
       v-model="message"
-      :rows="compact ? 4 : 5"
-      placeholder="Опишите задачу: процесс, форматы, срок…"
+      :rows="compact ? 5 : 6"
+      placeholder="1) Что сейчас вручную и сколько занимает&#10;2) Какой результат нужен&#10;3) Версия программы&#10;4) Желаемый срок"
     />
     <p v-if="error" class="form-error">{{ error }}</p>
     <p v-if="sent" class="form-ok">Заявка отправлена. Отвечу на указанный email.</p>
     <button type="submit" class="btn btn-primary" :disabled="sending">
-      {{ sending ? 'Отправка…' : 'Отправить заявку' }}
+      {{ sending ? 'Отправка…' : 'Отправить' }}
     </button>
   </form>
 </template>
@@ -161,19 +162,21 @@ async function submit() {
 .contact-form input,
 .contact-select,
 .contact-form textarea {
-  padding: 0.7rem 0.85rem;
-  background: var(--bg-card);
+  padding: 0.85rem 1rem;
+  background: var(--bg-elevated);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-btn);
   color: var(--text);
   font-family: var(--font-sans);
   font-size: 1.05rem;
+  letter-spacing: -0.01em;
   margin-bottom: 0.35rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .contact-form textarea {
   resize: vertical;
-  min-height: 6rem;
+  min-height: 8rem;
 }
 
 .contact-select {
@@ -186,6 +189,7 @@ async function submit() {
 .contact-form textarea:focus {
   outline: none;
   border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-glow);
 }
 
 .contact-form button:disabled {
@@ -202,5 +206,13 @@ async function submit() {
 
 .contact-form label:first-child {
   margin-top: 0;
+}
+
+.field-hint {
+  margin: 0 0 0.45rem;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--text-muted);
+  opacity: 0.9;
 }
 </style>

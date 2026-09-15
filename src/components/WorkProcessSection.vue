@@ -34,8 +34,8 @@ onUnmounted(() => {
   <section id="process" ref="sectionEl" class="section process-section" :class="{ visible }">
     <div class="container">
       <div class="section-head center">
-        <p class="eyebrow">Как работаем</p>
-        <h2>От задачи до внедрения</h2>
+        <p class="eyebrow">Как это проходит</p>
+        <h2>От разговора до рабочего инструмента</h2>
       </div>
       <div class="process-grid">
         <article
@@ -54,15 +54,15 @@ onUnmounted(() => {
 
 <style scoped>
 .process-section {
-  background: var(--bg-elevated);
-  border-block: 1px solid var(--border);
+  background: var(--bg);
+  border-block: none;
   padding-top: 3rem;
   padding-bottom: 3rem;
 }
 
 .process-grid {
   display: grid;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 @media (min-width: 720px) {
@@ -72,16 +72,16 @@ onUnmounted(() => {
 }
 
 .process-card {
-  padding: 1.25rem;
-  background: var(--bg-card);
+  padding: 1.75rem 1.5rem;
+  background: var(--bg-elevated);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius-card);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
   opacity: 0;
   transform: translateY(12px);
   transition:
     opacity 0.45s ease,
-    transform 0.45s ease,
-    border-color 0.2s;
+    transform 0.45s ease;
   transition-delay: var(--delay, 0ms);
 }
 
