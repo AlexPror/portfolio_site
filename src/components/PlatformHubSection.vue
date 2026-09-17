@@ -7,9 +7,9 @@ import { platforms } from '@/data/platforms'
     <div class="container">
       <div class="section-head center">
         <p class="eyebrow">Платформы</p>
-        <h2>Выберите программу — посмотрим, что можно ускорить</h2>
+        <h2>Плагины и макросы под Вашу CAD-программу</h2>
         <p class="section-lead">
-          Это не витрина готовых продуктов. Это вход в разговор о заказе: внутри — примеры работ и заявка.
+          Revit, КОМПАС-3D или SolidWorks — внутри страницы примеры работ и заявка на разработку под Ваш процесс.
         </p>
       </div>
       <div class="hub-grid">
