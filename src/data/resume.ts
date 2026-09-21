@@ -37,7 +37,10 @@ export const resume = {
   portfolioUrl: 'https://vorobjev.pro',
   telegramUrl: 'https://t.me/Alexandr_Vorobjev',
   githubUrl: 'https://github.com/AlexPror',
-  examplesUrl: 'https://vorobjev.pro/resume#examples',
+  /** Общая папка со всеми примерами КД */
+  examplesUrl: 'https://drive.google.com/drive/folders/1dg9UjnDy0h3Q7EMBN4qFjPmEU1qHJJs-?hl=ru',
+  drivePortfolioUrl:
+    'https://drive.google.com/drive/folders/1dg9UjnDy0h3Q7EMBN4qFjPmEU1qHJJs-?hl=ru',
   specializations: [
     'Инженер-конструктор',
     'Инженер-проектировщик',
@@ -125,8 +128,8 @@ export const resume = {
         'SolidWorks «пакет в цех»: 5–10 ч ручной подготовки комплекта файлов → один запуск утилиты (~46 мин на 150 позиций).',
       ],
       achievementsCta: {
-        label: 'Примеры работ (Drive и сайт)',
-        href: 'https://vorobjev.pro/resume#examples',
+        label: 'Примеры работ (Google Drive)',
+        href: 'https://drive.google.com/drive/folders/1dg9UjnDy0h3Q7EMBN4qFjPmEU1qHJJs-?hl=ru',
       },
     },
     {
@@ -200,14 +203,9 @@ export const resume = {
   links: [
     { label: 'Портфолио (сайт)', href: 'https://vorobjev.pro/' },
     { label: 'Резюме online', href: 'https://vorobjev.pro/resume' },
-    { label: 'Примеры работ (чертежи)', href: 'https://vorobjev.pro/resume#examples' },
     {
-      label: 'Google Drive — сложные чертежи',
-      href: 'https://drive.google.com/drive/folders/1vA1d-N0qeJdSCvTF-K1Fwl2EkMiKse4v?hl=ru',
-    },
-    {
-      label: 'Google Drive — листовой металл',
-      href: 'https://drive.google.com/drive/folders/1yXbK8TbtuUlDRFJaUhckzrAIA_363ehW?hl=ru',
+      label: 'Примеры работ (все чертежи)',
+      href: 'https://drive.google.com/drive/folders/1dg9UjnDy0h3Q7EMBN4qFjPmEU1qHJJs-?hl=ru',
     },
     { label: 'Кейсы КОМПАС', href: 'https://vorobjev.pro/kompas' },
     { label: 'Кейсы Revit', href: 'https://vorobjev.pro/revit' },
@@ -217,6 +215,11 @@ export const resume = {
     { label: 'Telegram', href: 'https://t.me/Alexandr_Vorobjev' },
   ],
   drive: [
+    {
+      label: 'Все примеры работ',
+      href: 'https://drive.google.com/drive/folders/1dg9UjnDy0h3Q7EMBN4qFjPmEU1qHJJs-?hl=ru',
+      note: 'Общая папка с комплектами КД',
+    },
     {
       label: 'Проект замены размольного ротора — сложные чертежи',
       href: 'https://drive.google.com/drive/folders/1vA1d-N0qeJdSCvTF-K1Fwl2EkMiKse4v?hl=ru',

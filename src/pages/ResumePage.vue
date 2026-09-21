@@ -32,14 +32,7 @@ function shortUrl(href: string) {
             <a :href="`tel:${resume.phone.replace(/\s|\(|\)|-/g, '')}`">{{ resume.phone }}</a>
             <a :href="`mailto:${resume.email}`">{{ resume.email }}</a>
             <a :href="resume.portfolioUrl" target="_blank" rel="noopener">{{ resume.portfolioUrl }}</a>
-            <a href="#examples">Примеры работ (чертежи)</a>
-            <a
-              :href="resume.drive[0]?.href"
-              target="_blank"
-              rel="noopener"
-            >
-              Google Drive — примеры КД
-            </a>
+            <a :href="resume.drivePortfolioUrl" target="_blank" rel="noopener">Примеры работ (Google Drive)</a>
             <a :href="resume.telegramUrl" target="_blank" rel="noopener">Telegram</a>
             <a :href="resume.githubUrl" target="_blank" rel="noopener">GitHub</a>
             <span>{{ resume.city }}</span>
@@ -64,7 +57,9 @@ function shortUrl(href: string) {
           <button type="button" class="btn btn-primary" @click="downloadPdf">
             Скачать резюме PDF
           </button>
-          <a href="#examples" class="btn btn-ghost">Примеры работ</a>
+          <a :href="resume.drivePortfolioUrl" class="btn btn-ghost" target="_blank" rel="noopener"
+            >Примеры работ</a
+          >
           <a :href="resume.portfolioUrl" class="btn btn-ghost" target="_blank" rel="noopener">Портфолио</a>
           <a href="https://vorobjev.pro/#contact" class="btn btn-ghost">Связаться</a>
         </div>
@@ -161,6 +156,10 @@ function shortUrl(href: string) {
     <section id="examples" class="section">
       <div class="container resume-doc">
         <h2>Примеры работ</h2>
+        <p class="section-lead">
+          <a :href="resume.drivePortfolioUrl" target="_blank" rel="noopener">Общая папка Google Drive</a>
+          — все комплекты КД. Ниже — отдельные подборки.
+        </p>
         <div class="drive-grid">
           <a
             v-for="d in resume.drive"
