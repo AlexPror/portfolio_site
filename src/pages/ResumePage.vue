@@ -192,11 +192,6 @@ function shortUrl(href: string) {
   padding-bottom: 2rem;
 }
 
-.resume-doc {
-  /* тот же .container, что у хедера и футера — без узкой колонки */
-  width: 100%;
-}
-
 .resume-top {
   display: grid;
   gap: 1.25rem;
