@@ -32,6 +32,14 @@ function shortUrl(href: string) {
             <a :href="`tel:${resume.phone.replace(/\s|\(|\)|-/g, '')}`">{{ resume.phone }}</a>
             <a :href="`mailto:${resume.email}`">{{ resume.email }}</a>
             <a :href="resume.portfolioUrl" target="_blank" rel="noopener">{{ resume.portfolioUrl }}</a>
+            <a href="#examples">Примеры работ (чертежи)</a>
+            <a
+              :href="resume.drive[0]?.href"
+              target="_blank"
+              rel="noopener"
+            >
+              Google Drive — примеры КД
+            </a>
             <a :href="resume.telegramUrl" target="_blank" rel="noopener">Telegram</a>
             <a :href="resume.githubUrl" target="_blank" rel="noopener">GitHub</a>
             <span>{{ resume.city }}</span>
@@ -56,6 +64,7 @@ function shortUrl(href: string) {
           <button type="button" class="btn btn-primary" @click="downloadPdf">
             Скачать резюме PDF
           </button>
+          <a href="#examples" class="btn btn-ghost">Примеры работ</a>
           <a :href="resume.portfolioUrl" class="btn btn-ghost" target="_blank" rel="noopener">Портфолио</a>
           <a href="https://vorobjev.pro/#contact" class="btn btn-ghost">Связаться</a>
         </div>
@@ -184,8 +193,8 @@ function shortUrl(href: string) {
 }
 
 .resume-doc {
-  max-width: 860px;
-  margin-inline: auto;
+  /* тот же .container, что у хедера и футера — без узкой колонки */
+  width: 100%;
 }
 
 .resume-top {
