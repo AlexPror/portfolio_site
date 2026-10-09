@@ -1,5 +1,52 @@
 <script setup lang="ts">
-import { resume } from '@/data/resume'
+import { computed, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import {
+  resumeModeList,
+  resumeProfiles,
+  resolveResumeMode,
+  type ResumeMode,
+} from '@/data/resume'
+
+const route = useRoute()
+const router = useRouter()
+const STORAGE_KEY = 'vorobjev_resume_mode'
+
+const mode = computed<ResumeMode>(() => {
+  const fromQuery = resolveResumeMode(String(route.query.mode || ''))
+  if (route.query.mode === 'constructor' || route.query.mode === 'automation') {
+    return fromQuery
+  }
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY)
+    return resolveResumeMode(saved)
+  } catch {
+    return 'constructor'
+  }
+})
+
+const resume = computed(() => resumeProfiles[mode.value])
+
+function setMode(next: ResumeMode) {
+  try {
+    localStorage.setItem(STORAGE_KEY, next)
+  } catch {
+    /* ignore */
+  }
+  router.replace({ query: { ...route.query, mode: next } })
+}
+
+watch(
+  mode,
+  (m) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, m)
+    } catch {
+      /* ignore */
+    }
+  },
+  { immediate: true },
+)
 
 function downloadPdf() {
   window.print()
@@ -17,9 +64,30 @@ function shortUrl(href: string) {
 </script>
 
 <template>
-  <div class="resume-page">
+  <div class="resume-page" :data-mode="mode">
     <section class="section resume-hero no-print-extra">
       <div class="container resume-doc">
+        <div class="mode-switch no-print" role="tablist" aria-label="Тип резюме">
+          <button
+            v-for="m in resumeModeList"
+            :key="m.id"
+            type="button"
+            role="tab"
+            class="mode-tab"
+            :class="{ on: mode === m.id }"
+            :aria-selected="mode === m.id"
+            @click="setMode(m.id)"
+          >
+            <strong>{{ m.tabLabel }}</strong>
+            <small>{{ m.tabHint }}</small>
+          </button>
+        </div>
+        <p class="mode-badge no-print">
+          {{ resumeModeList.find((m) => m.id === mode)?.badge }}
+          · ссылка на этот профиль:
+          <code>{{ mode === 'constructor' ? '/resume?mode=constructor' : '/resume?mode=automation' }}</code>
+        </p>
+
         <div class="resume-top">
           <div>
             <p class="resume-meta">Резюме · обновлено {{ resume.updatedAt }}</p>
@@ -34,7 +102,7 @@ function shortUrl(href: string) {
             <a :href="resume.portfolioUrl" target="_blank" rel="noopener">{{ resume.portfolioUrl }}</a>
             <a :href="resume.drivePortfolioUrl" target="_blank" rel="noopener">Примеры работ (Google Drive)</a>
             <a :href="resume.telegramUrl" target="_blank" rel="noopener">Telegram</a>
-            <a :href="resume.githubUrl" target="_blank" rel="noopener">GitHub</a>
+            <a v-if="mode === 'automation'" :href="resume.githubUrl" target="_blank" rel="noopener">GitHub</a>
             <span>{{ resume.city }}</span>
             <span>{{ resume.citizenship }}</span>
           </div>
@@ -48,6 +116,25 @@ function shortUrl(href: string) {
         </div>
 
         <p class="resume-about">{{ resume.about }}</p>
+        <p v-if="resume.sideNote" class="resume-side-note">{{ resume.sideNote }}</p>
+
+        <div class="cad-block" aria-label="CAD и портфолио">
+          <h2 class="cad-h">CAD · навыки и портфолио</h2>
+          <div class="cad-grid">
+            <a
+              v-for="c in resume.cadSkills"
+              :key="c.name"
+              class="cad-card"
+              :href="c.href"
+              target="_blank"
+              rel="noopener"
+            >
+              <strong>{{ c.name }}</strong>
+              <span class="cad-level">{{ c.level }}</span>
+              <span class="cad-note">{{ c.note }}</span>
+            </a>
+          </div>
+        </div>
 
         <div class="resume-specs">
           <span v-for="s in resume.specializations" :key="s" class="spec-chip">{{ s }}</span>
@@ -55,7 +142,7 @@ function shortUrl(href: string) {
 
         <div class="resume-actions no-print">
           <button type="button" class="btn btn-primary" @click="downloadPdf">
-            Скачать резюме PDF
+            Скачать PDF (текущий профиль)
           </button>
           <a :href="resume.drivePortfolioUrl" class="btn btn-ghost" target="_blank" rel="noopener"
             >Примеры работ</a
@@ -64,17 +151,16 @@ function shortUrl(href: string) {
           <a href="https://vorobjev.pro/#contact" class="btn btn-ghost">Связаться</a>
         </div>
         <p class="print-hint no-print">
-          В диалоге печати: «Сохранить как PDF». Ссылки в PDF кликабельны (портфолио, кейсы, Drive).
+          Перед печатью выберите профиль переключателем. В диалоге: «Сохранить как PDF».
         </p>
       </div>
     </section>
 
-    <!-- HH-style links block early for recruiters / PDF -->
     <section class="section links-top-section">
       <div class="container resume-doc">
         <h2>Ссылки</h2>
         <ul class="hh-links">
-          <li v-for="l in resume.links" :key="l.href">
+          <li v-for="l in resume.links" :key="l.href + l.label">
             <span class="hh-link-label">{{ l.label }}</span>
             <a :href="l.href" target="_blank" rel="noopener">{{ l.href }}</a>
           </li>
@@ -86,7 +172,7 @@ function shortUrl(href: string) {
       <div class="container resume-doc">
         <h2>Опыт работы — {{ resume.experienceYears }}</h2>
 
-        <article v-for="job in resume.jobs" :key="job.company + job.period" class="job-block">
+        <article v-for="job in resume.jobs" :key="job.company + job.period + mode" class="job-block">
           <div class="job-head">
             <div>
               <h3>
@@ -158,7 +244,7 @@ function shortUrl(href: string) {
         <h2>Примеры работ</h2>
         <p class="section-lead">
           <a :href="resume.drivePortfolioUrl" target="_blank" rel="noopener">Общая папка Google Drive</a>
-          — все комплекты КД. Ниже — отдельные подборки.
+          — комплекты КД. Отдельные подборки ниже.
         </p>
         <div class="drive-grid">
           <a
@@ -181,457 +267,446 @@ function shortUrl(href: string) {
 
 <style scoped>
 .resume-page {
-  --accent: #5b8def;
+  padding-bottom: 3rem;
+}
+
+.mode-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+  margin-bottom: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .mode-switch {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mode-tab {
+  text-align: left;
+  border: 1px solid rgba(30, 58, 95, 0.22);
+  background: rgba(255, 255, 255, 0.72);
+  border-radius: 12px;
+  padding: 0.75rem 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.mode-tab strong {
+  display: block;
+  font-size: 1rem;
+  color: #0f2744;
+}
+
+.mode-tab small {
+  display: block;
+  margin-top: 0.2rem;
+  color: #5a6b7d;
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.mode-tab.on {
+  border-color: rgba(30, 90, 140, 0.55);
+  background: rgba(210, 232, 248, 0.85);
+  box-shadow: 0 0 0 1px rgba(30, 90, 140, 0.2);
+}
+
+.mode-badge {
+  margin: 0 0 1.1rem;
+  font-size: 0.86rem;
+  color: #3d5166;
+}
+
+.mode-badge code {
+  font-size: 0.8rem;
+  background: rgba(15, 39, 68, 0.06);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
 }
 
 .resume-hero {
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
-  padding-top: 2rem;
-  padding-bottom: 2rem;
+  padding-top: 1.5rem;
 }
 
 .resume-top {
   display: grid;
+  grid-template-columns: 1.4fr 1fr;
   gap: 1.25rem;
+  margin-bottom: 1.25rem;
 }
 
-@media (min-width: 720px) {
+@media (max-width: 800px) {
   .resume-top {
-    grid-template-columns: 1.4fr 1fr;
-    align-items: start;
+    grid-template-columns: 1fr;
   }
 }
 
 .resume-meta {
   margin: 0 0 0.35rem;
-  font-size: 0.85rem;
-  color: var(--text-muted);
+  color: #5a6b7d;
+  font-size: 0.9rem;
 }
 
 .resume-page h1 {
   margin: 0 0 0.35rem;
-  font-size: clamp(1.6rem, 4vw, 2.1rem);
-  line-height: 1.2;
+  font-size: clamp(1.55rem, 3vw, 2rem);
+  line-height: 1.15;
 }
 
 .resume-sub,
 .resume-format {
-  margin: 0.2rem 0;
-  color: var(--text-muted);
-  font-size: 0.98rem;
+  margin: 0.15rem 0;
+  color: #5a6b7d;
 }
 
 .resume-role {
-  margin: 0.5rem 0 0.25rem;
-  font-size: 1.15rem;
-  font-weight: 600;
-  color: var(--accent);
+  margin: 0.45rem 0 0.2rem;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #0f2744;
 }
 
 .resume-contacts {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  padding: 1rem 1.1rem;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  font-size: 0.95rem;
+  gap: 0.28rem;
+  font-size: 0.92rem;
 }
 
 .resume-contacts a {
-  color: var(--accent);
-  word-break: break-all;
+  color: #155a8a;
 }
 
 .highlight-grid {
   display: grid;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.65rem;
+  margin: 1rem 0 1.1rem;
 }
 
-@media (min-width: 640px) {
+@media (max-width: 900px) {
   .highlight-grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: 1fr 1fr;
   }
 }
 
 .highlight-card {
-  padding: 0.85rem 0.9rem;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
+  border: 1px solid rgba(30, 58, 95, 0.14);
   border-radius: 10px;
+  padding: 0.7rem 0.75rem;
+  background: rgba(255, 255, 255, 0.65);
 }
 
 .highlight-value {
-  font-weight: 700;
-  font-size: 1.05rem;
-  color: var(--accent);
-  line-height: 1.25;
+  font-weight: 800;
+  font-size: 0.98rem;
+  color: #0f2744;
 }
 
 .highlight-label {
-  margin-top: 0.25rem;
-  font-size: 0.82rem;
-  color: var(--text-muted);
-  line-height: 1.35;
+  margin-top: 0.2rem;
+  font-size: 0.8rem;
+  color: #5a6b7d;
+  line-height: 1.3;
 }
 
 .resume-about {
-  margin: 1.35rem 0 1rem;
-  color: var(--text-muted);
+  margin: 0 0 0.65rem;
   line-height: 1.55;
+  max-width: 72ch;
+}
+
+.resume-side-note {
+  margin: 0 0 1rem;
+  padding: 0.65rem 0.8rem;
+  border-left: 3px solid rgba(30, 90, 140, 0.45);
+  background: rgba(210, 232, 248, 0.35);
+  font-size: 0.92rem;
+  line-height: 1.45;
+  max-width: 72ch;
+}
+
+.cad-block {
+  margin: 1rem 0 1.15rem;
+}
+
+.cad-h {
+  margin: 0 0 0.55rem;
+  font-size: 1.05rem;
+}
+
+.cad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.65rem;
+}
+
+@media (max-width: 900px) {
+  .cad-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cad-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 10px;
+  border: 1px solid rgba(30, 58, 95, 0.18);
+  background: #fff;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cad-card:hover {
+  border-color: rgba(30, 90, 140, 0.5);
+  box-shadow: 0 4px 14px rgba(15, 39, 68, 0.08);
+}
+
+.cad-card strong {
+  color: #0f2744;
   font-size: 1.02rem;
+}
+
+.cad-level {
+  font-size: 0.86rem;
+  color: #3d5166;
+  line-height: 1.35;
+}
+
+.cad-note {
+  font-size: 0.8rem;
+  color: #155a8a;
+  font-weight: 600;
 }
 
 .resume-specs {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.45rem;
+  gap: 0.4rem;
+  margin: 0.85rem 0 1rem;
 }
 
 .spec-chip {
-  padding: 0.28rem 0.6rem;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-size: 0.82rem;
-  color: var(--text-muted);
+  font-size: 0.78rem;
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(30, 58, 95, 0.18);
+  background: rgba(255, 255, 255, 0.7);
 }
 
 .resume-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.65rem;
-  margin-top: 1.35rem;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
 }
 
 .print-hint {
-  margin: 0.65rem 0 0;
-  font-size: 0.88rem;
-  color: var(--text-muted);
+  margin: 0.55rem 0 0;
+  font-size: 0.82rem;
+  color: #5a6b7d;
 }
 
 .hh-links {
   list-style: none;
-  margin: 0;
   padding: 0;
+  margin: 0;
   display: grid;
-  gap: 0.55rem;
-}
-
-.hh-links li {
-  display: grid;
-  gap: 0.15rem;
-  padding: 0.65rem 0;
-  border-bottom: 1px solid var(--border);
-}
-
-@media (min-width: 640px) {
-  .hh-links li {
-    grid-template-columns: 11rem 1fr;
-    align-items: baseline;
-    gap: 1rem;
-  }
+  gap: 0.45rem;
 }
 
 .hh-link-label {
-  font-weight: 600;
-  font-size: 0.95rem;
-}
-
-.hh-links a {
-  color: var(--accent);
-  font-size: 0.92rem;
-  word-break: break-all;
+  display: block;
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: #0f2744;
 }
 
 .job-block {
-  padding: 1.25rem 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.job-block:last-child {
-  border-bottom: none;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(30, 58, 95, 0.12);
 }
 
 .job-head {
   display: flex;
-  flex-wrap: wrap;
   justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.job-block h3 {
-  margin: 0;
-  font-size: 1.1rem;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .job-role {
-  margin: 0.25rem 0 0;
+  margin: 0.2rem 0 0;
   font-weight: 600;
-  color: var(--accent);
 }
 
 .job-period {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  text-align: right;
-  font-size: 0.92rem;
-  gap: 0.15rem;
+  font-size: 0.9rem;
 }
 
 .job-meta {
-  margin: 0.45rem 0 0.65rem;
-  color: var(--text-muted);
-  font-size: 0.92rem;
-}
-
-.job-block ul {
-  margin: 0.5rem 0 0;
-  padding-left: 1.15rem;
-  color: var(--text-muted);
-  line-height: 1.5;
+  margin: 0.35rem 0 0.55rem;
+  color: #5a6b7d;
+  font-size: 0.9rem;
 }
 
 .job-achievements {
-  margin-top: 0.85rem;
-  padding: 0.85rem 1rem;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
+  margin-top: 0.65rem;
+  padding: 0.65rem 0.75rem;
+  background: rgba(210, 232, 248, 0.28);
   border-radius: 8px;
 }
 
 .ach-label {
   margin: 0 0 0.35rem;
-  font-size: 0.78rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--accent);
-  font-weight: 600;
-}
-
-.job-achievements ul {
-  margin: 0;
+  font-weight: 700;
+  font-size: 0.85rem;
 }
 
 .ach-cta {
   display: inline-block;
-  margin-top: 0.55rem;
-  color: var(--accent);
-  font-size: 0.92rem;
+  margin-top: 0.4rem;
+  font-size: 0.88rem;
 }
 
 .link-url {
-  font-size: 0.85rem;
-  opacity: 0.85;
+  color: #5a6b7d;
+  font-size: 0.8rem;
   word-break: break-all;
 }
 
 .resume-muted {
-  background: var(--bg-elevated);
-  border-block: 1px solid var(--border);
+  background: rgba(15, 39, 68, 0.03);
 }
 
 .resume-split {
   display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 2rem;
 }
 
-@media (min-width: 720px) {
+@media (max-width: 800px) {
   .resume-split {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
   }
 }
 
 .resume-page h2 {
-  margin: 0 0 1rem;
-  font-size: 1.25rem;
+  margin: 0 0 0.75rem;
 }
 
 .edu-block {
-  margin-bottom: 1.15rem;
-}
-
-.edu-block h3 {
-  margin: 0 0 0.25rem;
-  font-size: 1.05rem;
-}
-
-.muted {
-  color: var(--text-muted);
+  margin-bottom: 1rem;
 }
 
 .plain-list {
-  margin: 0;
   padding-left: 1.1rem;
-  color: var(--text-muted);
 }
 
 .skills-h {
-  margin-top: 1.75rem;
-  margin-bottom: 0.75rem;
-  font-size: 1.15rem;
+  margin-top: 1.25rem;
+}
+
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.tag {
+  font-size: 0.78rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  background: rgba(30, 58, 95, 0.08);
 }
 
 .license {
-  margin-top: 1rem;
-  color: var(--text-muted);
-  font-size: 0.95rem;
+  margin-top: 0.85rem;
+  color: #5a6b7d;
+  font-size: 0.9rem;
+}
+
+.section-lead {
+  margin: 0 0 0.85rem;
 }
 
 .drive-grid {
   display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 0.75rem;
 }
 
-@media (min-width: 640px) {
+@media (max-width: 700px) {
   .drive-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
   }
 }
 
 .drive-card {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  padding: 1rem 1.1rem;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
+  gap: 0.25rem;
+  padding: 0.85rem;
+  border: 1px solid rgba(30, 58, 95, 0.14);
   border-radius: 10px;
-  text-align: left;
-  color: inherit;
   text-decoration: none;
-  transition: border-color 0.2s;
-}
-
-.drive-card:hover {
-  border-color: var(--accent);
   color: inherit;
+  background: #fff;
 }
 
 .drive-title {
-  font-weight: 600;
-  color: var(--accent);
-  font-size: 0.98rem;
+  font-weight: 700;
+  color: #0f2744;
 }
 
 .drive-note {
-  font-size: 0.88rem;
-  color: var(--text-muted);
-  line-height: 1.4;
+  font-size: 0.86rem;
+  color: #3d5166;
 }
 
 .drive-url {
-  font-size: 0.78rem;
-  color: var(--text-muted);
+  font-size: 0.75rem;
+  color: #5a6b7d;
   word-break: break-all;
-  margin-top: 0.15rem;
+}
+
+.muted {
+  color: #5a6b7d;
 }
 
 @media print {
-  @page {
-    size: A4;
-    margin: 12mm 14mm;
-  }
-
-  .no-print {
+  .no-print,
+  .no-print-extra .mode-switch,
+  .no-print-extra .mode-badge,
+  .no-print-extra .resume-actions,
+  .no-print-extra .print-hint {
     display: none !important;
   }
 
   .resume-page {
-    color: #111 !important;
-    background: #fff !important;
-    font-size: 10.5pt;
-    line-height: 1.4;
-  }
-
-  .section {
-    padding-top: 0.65rem !important;
-    padding-bottom: 0.65rem !important;
-  }
-
-  .resume-hero,
-  .resume-muted,
-  .highlight-card,
-  .resume-contacts,
-  .job-achievements,
-  .drive-card,
-  .links-top-section {
-    background: #fff !important;
-    border-color: #c8c8c8 !important;
+    padding: 0;
   }
 
   .resume-hero {
-    background: #fff !important;
-    border-bottom: 1px solid #bbb !important;
-    padding-top: 0 !important;
+    padding-top: 0;
   }
 
   .resume-page h1 {
-    font-size: 18pt !important;
-    color: #111 !important;
+    font-size: 1.45rem;
   }
 
-  .resume-page h2 {
-    font-size: 12pt !important;
-    color: #111 !important;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 0.25rem;
-    margin-top: 0.75rem;
-  }
-
-  .resume-role,
-  .job-role,
-  .highlight-value,
-  .drive-title,
-  .ach-label,
-  .hh-link-label {
-    color: #0b5cab !important;
-  }
-
-  .resume-about,
-  .muted,
-  .job-block ul,
-  .drive-note,
-  .resume-sub,
-  .resume-format,
-  .job-meta,
-  .license,
-  .plain-list,
-  .drive-url {
-    color: #333 !important;
-  }
-
-  a {
-    color: #0b5cab !important;
-    text-decoration: underline !important;
-  }
-
-  .spec-chip,
-  .tag {
-    border-color: #bbb !important;
-    color: #333 !important;
-    background: #f5f5f5 !important;
-  }
-
-  .job-block {
+  .cad-card,
+  .drive-card,
+  .highlight-card {
     break-inside: avoid;
-    page-break-inside: avoid;
-  }
-
-  .drive-card {
-    break-inside: avoid;
-  }
-
-  .link-url {
-    display: inline;
-  }
-
-  .highlight-grid {
-    margin-top: 0.85rem;
   }
 }
 </style>
